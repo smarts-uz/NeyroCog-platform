@@ -206,7 +206,10 @@ export const trainingSession = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),
 
-    // "VisualSearch" | "NBack" | "TaskSwitch" | "ReactionTime" | "Tracking"
+    // 50 ta mashq id'sidan biri (meta.ts ExerciseId union) — masalan
+    // "visualSearch", "att_stroop", "em_breathe". DB-darajada CHECK
+    // qo'yilmaydi: qiymat ilova qatlamida (TypeScript union) validatsiya
+    // qilinadi (eski training_exercise_valid CHECK olib tashlangan).
     exerciseId: varchar("exercise_id", { length: 24 }).notNull(),
     score: integer("score").notNull(),
     accuracy: integer("accuracy").notNull(), // 0-100 (foiz)

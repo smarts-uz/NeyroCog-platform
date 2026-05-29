@@ -100,6 +100,9 @@ function ageAdjust(score: number | null, age?: number): number | null {
 
 export function stroopCogScore(raw: StroopRaw, patient?: EnginePatient): number | null {
   if (!raw || raw.correct == null) return null;
+  // Hech narsa urinilmagan (masalan, darhol saqlangan) → 0, shishirilgan tezlik balli emas.
+  const attempted = (raw.correct || 0) + (raw.errors || 0) + (raw.skipped || 0);
+  if (attempted === 0) return 0;
   const n = raw.totalTrials ?? 40;
   const accuracy = raw.correct / n;
   const skipPct = (raw.skipped ?? 0) / n;
@@ -114,13 +117,20 @@ export function tmtCogScore(raw: TMTRaw, patient?: EnginePatient): number | null
   const aRef = 30;
   const bRef = 75;
   const aPct = Math.max(0, Math.min(1, (aRef * 2 - raw.aTime) / aRef));
-  let bPct = 1;
-  if (raw.bTime != null) {
-    bPct = Math.max(0, Math.min(1, (bRef * 2 - raw.bTime) / bRef));
-  }
   const errPenalty = Math.min(0.3, ((raw.aErrors ?? 0) + (raw.bErrors ?? 0)) * 0.03);
-  const base = (aPct * 0.4 + bPct * 0.6) * 100 - errPenalty * 100;
-  return ageAdjust(round1(Math.max(0, base)), patient?.yosh);
+  // Interaktiv forma faqat A qismini bajaradi — bTime null bo'lsa ball faqat A
+  // qismiga asoslanadi (B uchun tekin kredit yo'q).
+  let base: number;
+  if (raw.bTime != null) {
+    const bPct = Math.max(0, Math.min(1, (bRef * 2 - raw.bTime) / bRef));
+    base = (aPct * 0.4 + bPct * 0.6) * 100 - errPenalty * 100;
+  } else {
+    base = aPct * 100 - errPenalty * 100;
+  }
+  // Tugatish nisbati: barcha nuqtalar ulanmasdan saqlangan test jazolanadi.
+  const ratio =
+    raw.completed != null && raw.total ? Math.max(0, Math.min(1, raw.completed / raw.total)) : 1;
+  return ageAdjust(round1(Math.max(0, base) * ratio), patient?.yosh);
 }
 
 export function dstCogScore(raw: DSTRaw, patient?: EnginePatient): number | null {
@@ -184,6 +194,9 @@ export function eegCogScore(raw: EEGRaw, _patient?: EnginePatient): number | nul
 
 export function audioCogScore(raw: AudioRaw, patient?: EnginePatient): number | null {
   if (!raw || raw.correct == null) return null;
+  // Hech narsa urinilmagan → 0, shishirilgan tezlik balli emas.
+  const attempted = (raw.correct || 0) + (raw.errors || 0);
+  if (attempted === 0) return 0;
   const n = raw.totalTrials ?? 30;
   const accuracy = raw.correct / n;
   const avgRT = raw.totalTimeSec / n;

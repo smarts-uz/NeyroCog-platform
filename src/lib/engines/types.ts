@@ -66,6 +66,9 @@ export interface TMTRaw {
   aErrors?: number;
   bTime?: number;
   bErrors?: number;
+  /** Ulangan nuqtalar / jami — erta saqlangan testni jazolaydi */
+  completed?: number;
+  total?: number;
 }
 
 export interface DSTRaw {

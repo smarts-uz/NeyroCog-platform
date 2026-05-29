@@ -66,6 +66,16 @@ describe("KNBT — Stroop scoring", () => {
     expect(score).toBeGreaterThan(50);
     expect(score).toBeLessThan(85);
   });
+  it("nothing attempted → 0 (no inflated speed score)", () => {
+    const score = computeCogScore("Stroop", {
+      correct: 0,
+      errors: 0,
+      skipped: 0,
+      totalTimeSec: 0,
+      totalTrials: 40,
+    });
+    expect(score).toBe(0);
+  });
 });
 
 describe("KNBT — TMT scoring", () => {
@@ -76,6 +86,30 @@ describe("KNBT — TMT scoring", () => {
   it("slow time → lower score", () => {
     const score = computeCogScore("TMT", { aTime: 90, aErrors: 5, bTime: 200, bErrors: 5 });
     expect(score).toBeLessThan(40);
+  });
+  it("Part A only (bTime null) gives no free Part B credit", () => {
+    // aTime=45 → aPct=0.5. Part A only ≈ 50; with a perfect Part B ≈ 80.
+    const partAOnly = computeCogScore("TMT", { aTime: 45, aErrors: 0 }) ?? 0;
+    const withPartB = computeCogScore("TMT", { aTime: 45, aErrors: 0, bTime: 75, bErrors: 0 }) ?? 0;
+    expect(partAOnly).toBeLessThan(withPartB);
+    expect(partAOnly).toBeGreaterThan(0);
+  });
+  it("completion ratio penalises a trail saved early", () => {
+    const full = computeCogScore("TMT", { aTime: 30, aErrors: 0, completed: 25, total: 25 }) ?? 0;
+    const half = computeCogScore("TMT", { aTime: 30, aErrors: 0, completed: 12, total: 25 }) ?? 0;
+    expect(half).toBeLessThan(full);
+  });
+});
+
+describe("KNBT — Audio scoring", () => {
+  it("nothing attempted → 0 (no inflated speed score)", () => {
+    const score = computeCogScore("Audio", {
+      correct: 0,
+      errors: 0,
+      totalTimeSec: 0,
+      totalTrials: 30,
+    });
+    expect(score).toBe(0);
   });
 });
 

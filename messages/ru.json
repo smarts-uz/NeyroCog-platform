@@ -1,0 +1,164 @@
+{
+  "$meta": {
+    "locale": "ru",
+    "name": "Русский",
+    "status": "ai-draft",
+    "note": "AI-перевод, требуется ревизия врачом перед продакшеном"
+  },
+  "Common": {
+    "appName": "Когнитивная Тест-Система",
+    "appShort": "КТС",
+    "language": "Язык",
+    "loading": "Загрузка…",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "close": "Закрыть",
+    "search": "Поиск",
+    "yes": "Да",
+    "no": "Нет",
+    "error": "Ошибка",
+    "tryAgain": "Повторить"
+  },
+  "Login": {
+    "title": "Вход в систему",
+    "subtitle": "Войдите, используя email и пароль",
+    "email": "Email",
+    "emailPlaceholder": "doktor@klinika.uz",
+    "password": "Пароль",
+    "passwordPlaceholder": "Пароль",
+    "submit": "Войти",
+    "submitting": "Вход…",
+    "forgotPassword": "Забыли пароль?",
+    "noAccount": "Нет аккаунта?",
+    "signupCta": "Регистрация",
+    "errors": {
+      "invalidCredentials": "Неверный email или пароль",
+      "tooManyAttempts": "Слишком много попыток — попробуйте позже",
+      "network": "Сетевая ошибка. Проверьте интернет.",
+      "unknown": "Произошла неизвестная ошибка"
+    }
+  },
+  "Signup": {
+    "title": "Регистрация",
+    "subtitle": "Создайте новый аккаунт врача",
+    "fullName": "Ф.И.О.",
+    "fullNamePlaceholder": "Ваше имя и фамилия",
+    "clinic": "Клиника (необязательно)",
+    "clinicPlaceholder": "Название клиники",
+    "email": "Email",
+    "emailPlaceholder": "doktor@klinika.uz",
+    "password": "Пароль",
+    "passwordPlaceholder": "Минимум 8 символов",
+    "submit": "Создать аккаунт",
+    "submitting": "Создание…",
+    "haveAccount": "Уже есть аккаунт?",
+    "loginCta": "Войти",
+    "errors": {
+      "emailExists": "Этот email уже зарегистрирован",
+      "weakPassword": "Пароль должен содержать минимум 8 символов",
+      "network": "Сетевая ошибка. Проверьте интернет.",
+      "unknown": "Произошла неизвестная ошибка"
+    }
+  },
+  "Patients": {
+    "title": "Пациенты",
+    "newPatient": "Новый пациент",
+    "empty": "Пациенты не найдены. Нажмите «Новый пациент».",
+    "stats": {
+      "total": "Всего пациентов",
+      "testsCompleted": "Тестов проведено",
+      "inRehab": "На реабилитации",
+      "newThisWeek": "Новых за неделю"
+    },
+    "columns": {
+      "number": "№",
+      "fish": "Ф.И.О.",
+      "age": "Возраст",
+      "premorbid": "Преморбидный фон",
+      "duration": "Длительность",
+      "prep": "Препараты",
+      "diagnosis": "Диагноз",
+      "treatment": "Лечение",
+      "forecast": "Прогноз",
+      "actions": ""
+    },
+    "modal": {
+      "title": "Добавить нового пациента",
+      "fish": "Ф.И.О.",
+      "fishPlaceholder": "Полное имя пациента",
+      "jinsi": "Пол",
+      "male": "Мужской",
+      "female": "Женский",
+      "birthDate": "Дата рождения",
+      "age": "Возраст",
+      "ageAuto": "автоматически из даты рождения",
+      "premorbid": "Преморбидный неврологический фон",
+      "premorbidOff": "Нет (здоров)",
+      "premorbidOn": "Имеется",
+      "prep": "Количество анестетических препаратов",
+      "operationTimes": "Время операции",
+      "startTime": "Начало",
+      "endTime": "Окончание",
+      "duration": "Длительность",
+      "durationAuto": "окончание − начало",
+      "durationInvalid": "неверный интервал",
+      "durationEmpty": "введите время",
+      "save": "Сохранить пациента",
+      "saving": "Сохранение…",
+      "validation": {
+        "fishRequired": "Ф.И.О. обязательно",
+        "birthRequired": "Дата рождения обязательна",
+        "ageInvalid": "Возраст должен быть в диапазоне 0–18",
+        "durationInvalid": "Длительность должна быть положительной"
+      }
+    }
+  },
+  "PatientView": {
+    "back": "Список пациентов",
+    "registered": "зарегистрирован",
+    "sex": "Пол",
+    "age": "Возраст",
+    "birthDate": "Дата рождения",
+    "premorbid": "Преморбидный фон",
+    "premorbidOn": "Имеется",
+    "premorbidOff": "Нет",
+    "duration": "Длительность",
+    "durationUnit": "мин",
+    "prepCount": "Кол-во препаратов",
+    "operationTimes": "Время операции",
+    "start": "Начало",
+    "end": "Окончание",
+    "edit": "Редактировать",
+    "export": "Экспорт",
+    "tabs": {
+      "diagnostic": "Диагностические тесты",
+      "forecast": "Прогноз ПНР",
+      "rehab": "Реабилитация"
+    },
+    "diagnosticTitle": "Диагностические тесты",
+    "diagnosticSubtitle": "Доступные тесты для пациента. Нажмите — тест начнётся.",
+    "completedCount": "выполнено",
+    "startTest": "Начать тест",
+    "retakeTest": "Пройти заново",
+    "done": "Выполнено",
+    "sessions": "сеанс",
+    "comingSoon": "Скоро",
+    "abort": "Отмена",
+    "rehabTitle": "Реабилитация — Программа 2",
+    "forecastTitle": "Прогноз развития ПНР"
+  },
+  "Errors": {
+    "404": {
+      "title": "Страница не найдена",
+      "subtitle": "Запрашиваемая страница не существует.",
+      "back": "Вернуться на главную"
+    },
+    "500": {
+      "title": "Ошибка сервера",
+      "subtitle": "Что-то пошло не так. Пожалуйста, повторите попытку.",
+      "retry": "Перезагрузить"
+    }
+  }
+}

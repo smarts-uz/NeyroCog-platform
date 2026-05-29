@@ -1,0 +1,253 @@
+/* ─────────────────────────────────────────────────────────────
+ * KTT — Tailwind v4 + design tokens (v2: modern, warmer, dark mode)
+ *
+ * Dark mode: raw tokenlar :root (light) va [data-theme="dark"]'da
+ * aniqlanadi; @theme inline ularni `var()` orqali map qiladi — shu sabab
+ * dark override utility class'larga avtomatik kaskad bo'ladi.
+ * Foydalanish:  bg-bg, text-ink, bg-primary, rounded-lg, ...
+ * ─────────────────────────────────────────────────────────────
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+/* ── Raw tokens — LIGHT (default) ───────────────────────────── */
+:root {
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --surface-3: #eef2f7;
+
+  --ink: #0f172a;
+  --ink-2: #3d4a5c;
+  --ink-3: #677488;
+  --ink-4: #94a3b8;
+
+  --border: rgba(15, 23, 42, 0.07);
+  --border-strong: rgba(15, 23, 42, 0.14);
+  --divider: rgba(15, 23, 42, 0.055);
+
+  --primary: #0f766e;
+  --primary-hover: #0e6b63;
+  --primary-press: #115e59;
+  --primary-soft: #ccfbf1;
+  --primary-soft-2: #f0fdfa;
+  --primary-ring: rgba(15, 118, 110, 0.18);
+
+  --accent: #d97706;
+  --accent-soft: #fef3c7;
+
+  --ok: #16a34a;
+  --ok-bg: #dcfce7;
+  --warn: #d97706;
+  --warn-bg: #fef3c7;
+  --err: #dc2626;
+  --err-bg: #fee2e2;
+  --info: #2563eb;
+  --info-bg: #dbeafe;
+
+  --shadow-xs-v: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-sm-v: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md-v: 0 4px 16px rgba(15, 23, 42, 0.08), 0 1px 4px rgba(15, 23, 42, 0.04);
+  --shadow-lg-v: 0 16px 48px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+/* ── Raw tokens — DARK ──────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg: #0b1120;
+  --surface: #131c2e;
+  --surface-2: #1a2436;
+  --surface-3: #232f44;
+
+  --ink: #f1f5f9;
+  --ink-2: #c2ccda;
+  --ink-3: #8c9aae;
+  --ink-4: #64748b;
+
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --divider: rgba(255, 255, 255, 0.07);
+
+  --primary: #2dd4bf;
+  --primary-hover: #5eead4;
+  --primary-press: #14b8a6;
+  --primary-soft: #134e4a;
+  --primary-soft-2: #0f3a37;
+  --primary-ring: rgba(45, 212, 191, 0.28);
+
+  --accent: #fbbf24;
+  --accent-soft: #422006;
+
+  --ok: #4ade80;
+  --ok-bg: #14331f;
+  --warn: #fbbf24;
+  --warn-bg: #422006;
+  --err: #f87171;
+  --err-bg: #3b1414;
+  --info: #60a5fa;
+  --info-bg: #14213d;
+
+  --shadow-xs-v: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm-v: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md-v: 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg-v: 0 16px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+
+  color-scheme: dark;
+}
+
+/* ── Theme mapping → Tailwind utilities ─────────────────────── */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-divider: var(--divider);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-press: var(--primary-press);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-2: var(--primary-soft-2);
+  --color-primary-ring: var(--primary-ring);
+
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-err: var(--err);
+  --color-err-bg: var(--err-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+
+  /* Type */
+  --font-sans: var(--font-outfit), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  /* Radii — v2: softer */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+
+  /* Shadows — v2: soft, layered */
+  --shadow-xs: var(--shadow-xs-v);
+  --shadow-sm: var(--shadow-sm-v);
+  --shadow-md: var(--shadow-md-v);
+  --shadow-lg: var(--shadow-lg-v);
+
+  /* Motion */
+  --ease-confident: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Base ──────────────────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-size: 15px;
+    line-height: 1.5;
+    letter-spacing: -0.003em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    transition: background 220ms var(--ease-confident), color 220ms var(--ease-confident);
+  }
+
+  button,
+  [role="button"],
+  a {
+    touch-action: manipulation;
+  }
+
+  @media (max-width: 640px) {
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* ─── Component helpers ──────────────────────────────────────── */
+@layer components {
+  .eyebrow {
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+  }
+  /* Tabular numerals — statistika/hisoblar uchun (mono o'rniga) */
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+
+/* ─── Print (PDF hisobot) — har doim yorug' ──────────────────── */
+@media print {
+  @page {
+    margin: 16mm;
+  }
+  :root,
+  [data-theme="dark"] {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --ink: #0f172a;
+    --ink-2: #3d4a5c;
+    --ink-3: #677488;
+  }
+  html,
+  body {
+    background: #ffffff !important;
+  }
+  .report-root {
+    box-shadow: none !important;
+  }
+}

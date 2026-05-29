@@ -1,0 +1,163 @@
+{
+  "$meta": {
+    "locale": "uz",
+    "name": "O'zbekcha",
+    "status": "primary"
+  },
+  "Common": {
+    "appName": "Kognitiv Test Tizimi",
+    "appShort": "KTT",
+    "language": "Til",
+    "loading": "Yuklanmoqda…",
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
+    "delete": "O'chirish",
+    "edit": "Tahrirlash",
+    "close": "Yopish",
+    "search": "Qidirish",
+    "yes": "Ha",
+    "no": "Yo'q",
+    "error": "Xato",
+    "tryAgain": "Qayta urinish"
+  },
+  "Login": {
+    "title": "Tizimga kirish",
+    "subtitle": "Foydalanuvchi nomi va parol bilan kiring",
+    "email": "Email",
+    "emailPlaceholder": "doktor@klinika.uz",
+    "password": "Parol",
+    "passwordPlaceholder": "Parol",
+    "submit": "Kirish",
+    "submitting": "Kirilmoqda…",
+    "forgotPassword": "Parolni unutdingizmi?",
+    "noAccount": "Hisobingiz yo'qmi?",
+    "signupCta": "Ro'yxatdan o'tish",
+    "errors": {
+      "invalidCredentials": "Email yoki parol noto'g'ri",
+      "tooManyAttempts": "Ko'p urinish — keyinroq qayta urinib ko'ring",
+      "network": "Tarmoqdagi xato. Internetni tekshiring.",
+      "unknown": "Noma'lum xato yuz berdi"
+    }
+  },
+  "Signup": {
+    "title": "Ro'yxatdan o'tish",
+    "subtitle": "Yangi shifokor hisobini yarating",
+    "fullName": "F.I.Sh.",
+    "fullNamePlaceholder": "Ismingiz va familiyangiz",
+    "clinic": "Klinika (ixtiyoriy)",
+    "clinicPlaceholder": "Klinika nomi",
+    "email": "Email",
+    "emailPlaceholder": "doktor@klinika.uz",
+    "password": "Parol",
+    "passwordPlaceholder": "Kamida 8 ta belgi",
+    "submit": "Hisob yaratish",
+    "submitting": "Yaratilmoqda…",
+    "haveAccount": "Hisobingiz bormi?",
+    "loginCta": "Kirish",
+    "errors": {
+      "emailExists": "Bu email allaqachon ro'yxatdan o'tgan",
+      "weakPassword": "Parol kamida 8 ta belgidan iborat bo'lsin",
+      "network": "Tarmoqdagi xato. Internetni tekshiring.",
+      "unknown": "Noma'lum xato yuz berdi"
+    }
+  },
+  "Patients": {
+    "title": "Bemorlar",
+    "newPatient": "Yangi bemor",
+    "empty": "Bemor topilmadi. \"Yangi bemor\" tugmasini bosing.",
+    "stats": {
+      "total": "Jami bemorlar",
+      "testsCompleted": "Testlar bajarilgan",
+      "inRehab": "Reabilitatsiyada",
+      "newThisWeek": "Yangi bu hafta"
+    },
+    "columns": {
+      "number": "№",
+      "fish": "F.I.Sh.",
+      "age": "Yoshi",
+      "premorbid": "Premorbid",
+      "duration": "Davomiyligi",
+      "prep": "Preparatlar",
+      "diagnosis": "Diagnoz",
+      "treatment": "Davolash",
+      "forecast": "Bashorat",
+      "actions": ""
+    },
+    "modal": {
+      "title": "Yangi bemor qo'shish",
+      "fish": "F.I.Sh.",
+      "fishPlaceholder": "Bemorning to'liq ismi",
+      "jinsi": "Jinsi",
+      "male": "Erkak",
+      "female": "Ayol",
+      "birthDate": "Tug'ilgan sana",
+      "age": "Yoshi",
+      "ageAuto": "tug'ilgan sanadan avtomatik",
+      "premorbid": "Premorbid nevrologik fon",
+      "premorbidOff": "Yo'q (sog'lom)",
+      "premorbidOn": "Mavjud",
+      "prep": "Anestetik preparatlar soni",
+      "operationTimes": "Amaliyot vaqtlari",
+      "startTime": "Boshlanish",
+      "endTime": "Tugash",
+      "duration": "Davomiyligi",
+      "durationAuto": "tugash − boshlanish",
+      "durationInvalid": "noto'g'ri oraliq",
+      "durationEmpty": "vaqtlarni kiriting",
+      "save": "Bemorni saqlash",
+      "saving": "Saqlanmoqda…",
+      "validation": {
+        "fishRequired": "F.I.Sh. kiritilishi shart",
+        "birthRequired": "Tug'ilgan sana kiritilishi shart",
+        "ageInvalid": "Yosh 0–18 oralig'ida bo'lishi kerak",
+        "durationInvalid": "Davomiyligi musbat bo'lishi kerak"
+      }
+    }
+  },
+  "PatientView": {
+    "back": "Bemorlar ro'yxati",
+    "registered": "ro'yxatga olingan",
+    "sex": "Jinsi",
+    "age": "Yoshi",
+    "birthDate": "Tug'ilgan sana",
+    "premorbid": "Premorbid fon",
+    "premorbidOn": "Mavjud",
+    "premorbidOff": "Yo'q",
+    "duration": "Davomiyligi",
+    "durationUnit": "daqiqa",
+    "prepCount": "Preparatlar soni",
+    "operationTimes": "Amaliyot vaqtlari",
+    "start": "Boshlanish",
+    "end": "Tugash",
+    "edit": "Tahrirlash",
+    "export": "Eksport",
+    "tabs": {
+      "diagnostic": "Diagnostik testlar",
+      "forecast": "PNB prognozi",
+      "rehab": "Reabilitatsiya"
+    },
+    "diagnosticTitle": "Diagnostik testlar",
+    "diagnosticSubtitle": "Bemor uchun mavjud sinovlar. Bossangiz — test boshlanadi.",
+    "completedCount": "bajarilgan",
+    "startTest": "Testni boshlash",
+    "retakeTest": "Qaytadan o'tkazish",
+    "done": "Bajarilgan",
+    "sessions": "seans",
+    "comingSoon": "Tez kunda",
+    "abort": "Bekor qilish",
+    "rehabTitle": "Reabilitatsiya — 2-Dastur",
+    "forecastTitle": "PNB rivojlanish prognozi"
+  },
+  "Errors": {
+    "404": {
+      "title": "Sahifa topilmadi",
+      "subtitle": "Siz qidirayotgan sahifa mavjud emas.",
+      "back": "Bosh sahifaga qaytish"
+    },
+    "500": {
+      "title": "Server xatosi",
+      "subtitle": "Nimadir noto'g'ri ketdi. Iltimos, qayta urinib ko'ring.",
+      "retry": "Qayta yuklash"
+    }
+  }
+}

@@ -30,9 +30,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Common" });
+  const appName = t("appName");
   return {
-    title: t("appName"),
-    description: t("appName"),
+    title: { default: appName, template: `%s · ${appName}` },
+    description:
+      "Pediatrik operatsiyadan keyingi kognitiv buzilishlarni (POCD) diagnostika, bashorat va reabilitatsiya tizimi.",
+    applicationName: appName,
+    icons: { icon: "/icon.svg", shortcut: "/icon.svg", apple: "/icon.svg" },
+    appleWebApp: { capable: true, title: appName, statusBarStyle: "default" },
+    formatDetection: { telephone: false },
+    // Maxfiy klinik ilova — indekslanmasin
+    robots: { index: false, follow: false },
   };
 }
 

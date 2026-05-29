@@ -2,13 +2,10 @@ import "server-only";
 
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
+import { env, trustedOrigins } from "@/lib/env";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-
-if (!process.env.BETTER_AUTH_SECRET) {
-  throw new Error("BETTER_AUTH_SECRET is not set. See .env.local.example.");
-}
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -21,8 +18,8 @@ export const auth = betterAuth({
     },
   }),
 
-  secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL,
 
   // ─── Email + password (asosiy provayder) ──────────────────────
   emailAndPassword: {
@@ -43,7 +40,8 @@ export const auth = betterAuth({
   },
 
   // ─── Trust hosts (Next.js Server Actions uchun) ───────────────
-  trustedOrigins: [process.env.BETTER_AUTH_URL ?? "http://localhost:3000"],
+  // BETTER_AUTH_URL + ixtiyoriy AUTH_TRUSTED_ORIGINS (vergul bilan)
+  trustedOrigins: trustedOrigins(),
 
   // ─── Plugins ──────────────────────────────────────────────────
   plugins: [

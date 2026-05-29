@@ -46,18 +46,22 @@ export const user = pgTable("user", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const session = pgTable("session", {
-  id: text("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  token: text("token").notNull().unique(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const session = pgTable(
+  "session",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    token: text("token").notNull().unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("session_user_idx").on(t.userId)],
+);
 
 export const account = pgTable(
   "account",
@@ -78,7 +82,10 @@ export const account = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [uniqueIndex("account_provider_unique").on(t.providerId, t.accountId)],
+  (t) => [
+    uniqueIndex("account_provider_unique").on(t.providerId, t.accountId),
+    index("account_user_idx").on(t.userId),
+  ],
 );
 
 export const verification = pgTable("verification", {
@@ -192,6 +199,7 @@ export const testResult = pgTable(
   (t) => [
     index("test_result_patient_idx").on(t.patientId),
     index("test_result_test_idx").on(t.test, t.timepoint),
+    index("test_result_doctor_idx").on(t.doctorId),
   ],
 );
 
@@ -229,6 +237,7 @@ export const trainingSession = pgTable(
   (t) => [
     index("training_patient_idx").on(t.patientId),
     index("training_exercise_idx").on(t.exerciseId),
+    index("training_doctor_idx").on(t.doctorId),
   ],
 );
 

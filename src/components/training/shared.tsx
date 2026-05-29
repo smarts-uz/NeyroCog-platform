@@ -1,6 +1,7 @@
 "use client";
 
 import { ClinicalIcon } from "@/components/clinical-icon";
+import { ConfirmExitButton } from "@/components/confirm-exit-button";
 import type { MetricSpec } from "@/components/tests/shared";
 import { TestMetric } from "@/components/tests/shared";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import type { EnginePatient } from "@/lib/engines/types";
 import type { ExerciseMeta } from "@/lib/training/meta";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Play, RotateCw, X } from "lucide-react";
+import { CheckCircle2, Play, RotateCw } from "lucide-react";
 import type { ReactNode } from "react";
 
 export type TrainingPatient = EnginePatient & { fish?: string; id?: string };
@@ -78,10 +79,11 @@ export function TrainingShell({
             ))}
           </div>
         ) : null}
-        <Button variant="secondary" size="sm" onClick={onAbort} className="ml-auto sm:ml-0">
-          <X className="h-3.5 w-3.5" />
-          Chiqish
-        </Button>
+        <ConfirmExitButton
+          onConfirm={onAbort}
+          confirm={phase === "running"}
+          className="ml-auto sm:ml-0"
+        />
       </header>
 
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-auto">

@@ -20,7 +20,10 @@
     "no": "No",
     "error": "Error",
     "tryAgain": "Try again",
-    "editProfile": "Edit profile"
+    "editProfile": "Edit profile",
+    "exit": "Exit",
+    "exitTitle": "Exit without saving",
+    "exitBody": "The current result will not be saved. Confirm exit?"
   },
   "Profile": {
     "title": "Edit profile",

@@ -1,12 +1,13 @@
 "use client";
 
 import { ClinicalIcon } from "@/components/clinical-icon";
+import { ConfirmExitButton } from "@/components/confirm-exit-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { EnginePatient, TestName } from "@/lib/engines/types";
 import { TEST_BY_ID } from "@/lib/tests/meta";
 import { cn } from "@/lib/utils";
-import { Play, X } from "lucide-react";
+import { Play } from "lucide-react";
 import type { ReactNode } from "react";
 
 export type TestPatient = EnginePatient & { fish?: string; id?: string };
@@ -103,10 +104,11 @@ export function TestShell({
             ))}
           </div>
         ) : null}
-        <Button variant="secondary" size="sm" onClick={onAbort} className="ml-auto sm:ml-0">
-          <X className="h-3.5 w-3.5" />
-          Chiqish
-        </Button>
+        <ConfirmExitButton
+          onConfirm={onAbort}
+          confirm={phase === "running"}
+          className="ml-auto sm:ml-0"
+        />
       </header>
 
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-auto">

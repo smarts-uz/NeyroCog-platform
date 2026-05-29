@@ -19,7 +19,10 @@
     "no": "Yo'q",
     "error": "Xato",
     "tryAgain": "Qayta urinish",
-    "editProfile": "Profilni tahrirlash"
+    "editProfile": "Profilni tahrirlash",
+    "exit": "Chiqish",
+    "exitTitle": "Saqlamasdan chiqish",
+    "exitBody": "Joriy natija saqlanmaydi. Chiqishni tasdiqlaysizmi?"
   },
   "Profile": {
     "title": "Profilni tahrirlash",

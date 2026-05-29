@@ -6,8 +6,8 @@
     "note": "AI-перевод, требуется ревизия врачом перед продакшеном"
   },
   "Common": {
-    "appName": "Когнитивная Тест-Система",
-    "appShort": "КТС",
+    "appName": "NeyroCog",
+    "appShort": "NeyroCog",
     "language": "Язык",
     "loading": "Загрузка…",
     "save": "Сохранить",

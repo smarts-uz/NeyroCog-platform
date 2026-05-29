@@ -8,20 +8,28 @@ import { useRouter } from "@/i18n/navigation";
 import type { TrainingRow } from "@/lib/patients/detail";
 import { saveTrainingSession } from "@/lib/training/actions";
 import {
+  DAILY_GOAL,
+  adaptExercise,
+  computeStreak,
+  deriveLevel,
+  todayCount,
+} from "@/lib/training/adaptive";
+import {
+  type ExerciseAgg,
   type ExerciseId,
   type ExerciseMeta,
+  TRAINING_DOMAINS,
   TRAINING_LIST,
   TRAINING_META,
   aggregateTraining,
 } from "@/lib/training/meta";
-import { ArrowRight, Brain } from "lucide-react";
+import { ArrowRight, Brain, ChevronDown, ChevronUp } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
-
-const TARGET_PER_EXERCISE = 12; // 4 hafta × 3/hafta
 
 export function RehabHub({ patientId, training }: { patientId: string; training: TrainingRow[] }) {
   const router = useRouter();
-  const [active, setActive] = useState<ExerciseId | null>(null);
+  const [active, setActive] = useState<ExerciseMeta | null>(null);
+  const [openDomain, setOpenDomain] = useState<string | null>(TRAINING_DOMAINS[0]?.name ?? null);
   const [, startTransition] = useTransition();
 
   const agg = useMemo(
@@ -30,7 +38,7 @@ export function RehabHub({ patientId, training }: { patientId: string; training:
         training.map((t) => ({
           exerciseId: t.exerciseId,
           score: t.score,
-          accuracy: t.accuracy, // 0–100 (foiz) — avgAccuracy ham foizda chiqadi
+          accuracy: t.accuracy, // 0–100 (foiz)
           duration: t.duration,
           completedAt: t.completedAt,
         })),
@@ -38,17 +46,37 @@ export function RehabHub({ patientId, training }: { patientId: string; training:
     [training],
   );
 
+  const today = new Date().toISOString().slice(0, 10);
+  const doneToday = todayCount(
+    training.map((t) => t.completedAt),
+    today,
+  );
+  const streak = computeStreak(training.map((t) => t.completedAt));
+  const goalPct = Math.min(100, (doneToday / DAILY_GOAL) * 100);
+
+  const doneEx = TRAINING_LIST.filter((ex) => (agg?.byExercise[ex.id]?.sessions ?? 0) > 0).length;
+  const totalEx = TRAINING_LIST.length;
+
+  const launch = (exr: ExerciseMeta) => {
+    const history = training
+      .filter((t) => t.exerciseId === exr.id)
+      .sort((a, b) => new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime())
+      .map((t) => t.accuracy / 100);
+    const level = deriveLevel(history);
+    setActive(adaptExercise(exr, level));
+  };
+
   if (active) {
     return (
       <TrainingRunner
-        exerciseId={active}
+        exercise={active}
         patient={{ yosh: 0, premorbid: 0, davom: 0, prep: 0 }}
         onAbort={() => setActive(null)}
         onFinish={(result) => {
           startTransition(async () => {
             await saveTrainingSession({
               patientId,
-              exerciseId: active,
+              exerciseId: active.id as ExerciseId,
               score: result.score,
               accuracy: result.accuracy,
               duration: result.duration,
@@ -67,96 +95,114 @@ export function RehabHub({ patientId, training }: { patientId: string; training:
     <div className="flex flex-col gap-4">
       {/* Protocol banner */}
       <Card
-        className="p-5 border-primary/40"
-        style={{ boxShadow: "0 0 0 4px rgba(15,118,110,0.06)" }}
+        className="p-5"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-primary-soft-2) 0%, var(--color-surface) 100%)",
+        }}
       >
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-4 flex-wrap">
           <div className="h-12 w-12 rounded-xl bg-primary text-white grid place-items-center shrink-0">
             <Brain className="h-6 w-6" />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-w-[200px]">
             <div className="eyebrow">2-Dastur · Raqamli kognitiv trening</div>
             <h3 className="font-bold text-lg tracking-tight text-ink mt-1.5">
               Operatsiyadan keyingi kognitiv reabilitatsiya
             </h3>
             <p className="text-[13px] leading-relaxed text-ink-2 mt-1.5">
-              4 hafta · haftasiga 5–6 marta · har seans 15–20 daqiqa. Quyidagi 5 ta mashqdan birini
-              tanlang.
+              4 hafta · haftasiga 5–6 marta · har seans 15–20 daqiqa.{" "}
+              <b className="text-ink">
+                {TRAINING_DOMAINS.length} domen · {totalEx} ta mashq.
+              </b>
             </p>
           </div>
-          {agg ? (
-            <div className="px-3.5 py-2.5 rounded-[10px] bg-surface border border-border flex flex-col items-end gap-0.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-3">
-                Jami
-              </span>
-              <span className="font-bold text-xl text-ink tabular-nums">
-                {agg.totalSessions}
-                <span className="text-xs font-medium text-ink-3"> seans</span>
-              </span>
-              <span className="font-mono text-[11px] text-ink-3">{agg.totalMinutes} daq</span>
-            </div>
-          ) : null}
+          <div className="px-3.5 py-2.5 rounded-[10px] bg-surface border border-border flex gap-[18px]">
+            <MiniStat label="Mashqlar" value={`${doneEx}/${totalEx}`} />
+            <MiniStat label="Seanslar" value={agg?.totalSessions ?? 0} />
+            <MiniStat label="Daqiqa" value={agg?.totalMinutes ?? 0} />
+            <MiniStat label="Streak" value={streak} />
+          </div>
+        </div>
+
+        {/* Daily goal */}
+        <div className="mt-3.5">
+          <div className="flex justify-between mb-1.5">
+            <span className="text-[13px] font-semibold text-ink-2">Bugungi maqsad</span>
+            <span
+              className="text-[13px] font-bold tabular-nums"
+              style={{ color: doneToday >= DAILY_GOAL ? "var(--color-ok)" : "var(--color-ink)" }}
+            >
+              {doneToday} / {DAILY_GOAL} mashq {doneToday >= DAILY_GOAL ? "✓" : ""}
+            </span>
+          </div>
+          <div className="h-2 rounded-pill bg-surface-2 overflow-hidden">
+            <div
+              className="h-full transition-[width]"
+              style={{
+                width: `${goalPct}%`,
+                background: doneToday >= DAILY_GOAL ? "var(--color-ok)" : "var(--color-primary)",
+              }}
+            />
+          </div>
         </div>
       </Card>
 
-      {/* Domain progress */}
-      <Card className="p-5">
-        <div className="eyebrow mb-3.5">Domenlar bo'yicha rivojlanish</div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5">
-          {TRAINING_LIST.map((exr) => {
-            const done = agg?.byExercise[exr.id]?.sessions ?? 0;
-            const pct = Math.min(100, (done / TARGET_PER_EXERCISE) * 100);
-            return (
-              <div key={exr.id}>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <div
-                    className="h-6 w-6 rounded-md grid place-items-center shrink-0"
-                    style={{ background: exr.soft, color: exr.color }}
-                  >
-                    <ClinicalIcon name={exr.icon} size={13} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-xs text-ink leading-tight">{exr.name}</div>
-                    <div className="text-[11px] text-ink-3 leading-tight">{exr.domain}</div>
-                  </div>
-                  <span className="font-mono text-[11px] text-ink-2 tabular-nums font-semibold shrink-0">
-                    {done}/{TARGET_PER_EXERCISE}
-                  </span>
-                </div>
-                <div className="h-[5px] rounded-pill bg-surface-2 overflow-hidden">
-                  <div
-                    className="h-full transition-[width]"
-                    style={{ width: `${pct}%`, background: exr.color }}
-                  />
-                </div>
+      {/* Domain accordions */}
+      {TRAINING_DOMAINS.map((dom) => {
+        const list = TRAINING_LIST.filter((ex) => ex.domain === dom.name);
+        const domDone = list.filter((ex) => (agg?.byExercise[ex.id]?.sessions ?? 0) > 0).length;
+        const open = openDomain === dom.name;
+        const complete = domDone === list.length && list.length > 0;
+        return (
+          <Card key={dom.name} className="overflow-hidden p-0">
+            <button
+              type="button"
+              onClick={() => setOpenDomain(open ? null : dom.name)}
+              className="w-full flex items-center gap-3.5 px-[18px] py-3.5 text-left cursor-pointer"
+            >
+              <div
+                className="h-10 w-10 rounded-[11px] grid place-items-center shrink-0"
+                style={{ background: dom.soft, color: dom.color }}
+              >
+                <ClinicalIcon name={dom.icon} size={20} />
               </div>
-            );
-          })}
-        </div>
-      </Card>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-[15px] text-ink">{dom.name}</div>
+                <div className="text-xs text-ink-3">{list.length} ta mashq</div>
+              </div>
+              <span
+                className="font-bold text-[13px] tabular-nums px-2.5 py-0.5 rounded-pill"
+                style={{
+                  background: complete ? "var(--color-ok-bg)" : "var(--color-surface-2)",
+                  color: complete ? "var(--color-ok)" : "var(--color-ink-3)",
+                }}
+              >
+                {domDone}/{list.length}
+              </span>
+              {open ? (
+                <ChevronUp className="h-[18px] w-[18px] text-ink-3 shrink-0" />
+              ) : (
+                <ChevronDown className="h-[18px] w-[18px] text-ink-3 shrink-0" />
+              )}
+            </button>
+            {open ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 px-4 pb-4">
+                {list.map((ex) => (
+                  <ExerciseCard
+                    key={ex.id}
+                    exercise={ex}
+                    stat={agg?.byExercise[ex.id]}
+                    onStart={() => launch(ex)}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </Card>
+        );
+      })}
 
-      {/* Exercise launcher */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3.5">
-        {TRAINING_LIST.map((exr) => (
-          <ExerciseCard
-            key={exr.id}
-            exercise={exr}
-            sessions={agg?.byExercise[exr.id]?.sessions ?? 0}
-            avgAccuracy={agg?.byExercise[exr.id]?.avgAccuracy ?? 0}
-            avgScore={
-              agg?.byExercise[exr.id]
-                ? Math.round(
-                    (agg.byExercise[exr.id]?.totalScore ?? 0) /
-                      (agg.byExercise[exr.id]?.sessions ?? 1),
-                  )
-                : 0
-            }
-            onStart={() => setActive(exr.id)}
-          />
-        ))}
-      </div>
-
-      {/* Recent log */}
+      {/* Recent sessions log */}
       {training.length > 0 ? (
         <Card className="p-0 overflow-hidden">
           <div className="px-4 py-3.5 border-b border-divider">
@@ -164,8 +210,8 @@ export function RehabHub({ patientId, training }: { patientId: string; training:
           </div>
           <div>
             {training.slice(0, 6).map((s, i) => {
-              const exr = TRAINING_META[s.exerciseId as ExerciseId];
-              if (!exr) return null;
+              const ex = TRAINING_META[s.exerciseId as keyof typeof TRAINING_META];
+              if (!ex) return null;
               return (
                 <div
                   key={s.id}
@@ -175,13 +221,13 @@ export function RehabHub({ patientId, training }: { patientId: string; training:
                 >
                   <div
                     className="h-8 w-8 rounded-lg grid place-items-center"
-                    style={{ background: exr.soft, color: exr.color }}
+                    style={{ background: ex.soft, color: ex.color }}
                   >
-                    <ClinicalIcon name={exr.icon} size={16} />
+                    <ClinicalIcon name={ex.icon} size={16} />
                   </div>
                   <div>
-                    <div className="font-semibold text-sm text-ink">{exr.name}</div>
-                    <div className="text-xs text-ink-3">{exr.domain}</div>
+                    <div className="font-semibold text-sm text-ink">{ex.name}</div>
+                    <div className="text-xs text-ink-3">{ex.domain}</div>
                   </div>
                   <div className="font-mono text-xs text-ink-3 tabular-nums">
                     {new Date(s.completedAt).toLocaleString("uz-UZ", {
@@ -207,19 +253,25 @@ export function RehabHub({ patientId, training }: { patientId: string; training:
   );
 }
 
+function MiniStat({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="flex flex-col items-center">
+      <span className="font-bold text-lg text-ink tabular-nums">{value}</span>
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-3">{label}</span>
+    </div>
+  );
+}
+
 function ExerciseCard({
   exercise,
-  sessions,
-  avgAccuracy,
-  avgScore,
+  stat,
   onStart,
 }: {
   exercise: ExerciseMeta;
-  sessions: number;
-  avgAccuracy: number;
-  avgScore: number;
+  stat?: ExerciseAgg;
   onStart: () => void;
 }) {
+  const sessions = stat?.sessions ?? 0;
   return (
     <button
       type="button"
@@ -252,14 +304,14 @@ function ExerciseCard({
         </div>
       </div>
       <p className="text-[13px] leading-relaxed text-ink-2 m-0">{exercise.description}</p>
-      {sessions > 0 ? (
+      {stat ? (
         <div className="flex gap-3 py-2 border-t border-divider mt-0.5 font-mono text-[11px] text-ink-3 tabular-nums">
           <span>
-            Aniqlik: <b className="text-ink">{Math.round(avgAccuracy)}%</b>
+            Aniqlik: <b className="text-ink">{Math.round(stat.avgAccuracy)}%</b>
           </span>
           <span>·</span>
           <span>
-            O'rt ball: <b className="text-ink">{avgScore}</b>
+            O'rt ball: <b className="text-ink">{Math.round(stat.totalScore / stat.sessions)}</b>
           </span>
         </div>
       ) : null}

@@ -29,6 +29,11 @@ export interface TrainingComponentProps {
   onFinish: (result: TrainingResult) => void | Promise<void>;
 }
 
+/** Config bilan boshqariladigan dvigatel komponentlari uchun props. */
+export interface EngineComponentProps extends TrainingComponentProps {
+  exercise: ExerciseMeta;
+}
+
 export function TrainingShell({
   exercise,
   patient,

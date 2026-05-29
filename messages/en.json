@@ -6,8 +6,8 @@
     "note": "AI-translated, requires clinical review before production"
   },
   "Common": {
-    "appName": "Cognitive Testing System",
-    "appShort": "CTS",
+    "appName": "NeyroCog",
+    "appShort": "NeyroCog",
     "language": "Language",
     "loading": "Loading…",
     "save": "Save",

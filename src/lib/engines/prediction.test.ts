@@ -101,8 +101,8 @@ describe("Prediction — Factor contributions", () => {
     expect(c).toHaveLength(4);
     // Must be sorted by abs contribution descending
     for (let i = 1; i < c.length; i++) {
-      expect(Math.abs(c[i - 1]!.logitContribution)).toBeGreaterThanOrEqual(
-        Math.abs(c[i]!.logitContribution),
+      expect(Math.abs(c[i - 1]?.logitContribution ?? 0)).toBeGreaterThanOrEqual(
+        Math.abs(c[i]?.logitContribution ?? 0),
       );
     }
   });

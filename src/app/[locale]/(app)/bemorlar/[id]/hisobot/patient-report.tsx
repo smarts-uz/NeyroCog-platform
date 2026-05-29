@@ -68,7 +68,7 @@ export function PatientReport({
         <div className="flex items-start justify-between">
           <div>
             <div className="text-xs uppercase tracking-widest text-ink-3 font-semibold">
-              Kognitiv Test Tizimi
+              NeyroCog · Kognitiv Test Tizimi
             </div>
             <h1 className="text-2xl font-bold tracking-tight mt-1">Klinik hisobot</h1>
           </div>
@@ -216,9 +216,10 @@ export function PatientReport({
       ) : null}
 
       <footer className="mt-8 pt-4 border-t border-ink/20 text-[11px] text-ink-3 leading-relaxed">
-        Bu hisobot Kognitiv Test Tizimi tomonidan avtomatik yaratildi. Statistik bashoratlar (LR/MLR
-        — Statistics M-3, n=181) <b>klinik qarorni almashtirmaydi</b>; yakuniy baho shifokor
-        zimmasida. Imzo: __________________ · Sana: {fmtDate(new Date().toISOString())}
+        Bu hisobot NeyroCog (Kognitiv Test Tizimi) tomonidan avtomatik yaratildi. Statistik
+        bashoratlar (LR/MLR — Statistics M-3, n=181) <b>klinik qarorni almashtirmaydi</b>; yakuniy
+        baho shifokor zimmasida. Imzo: __________________ · Sana:{" "}
+        {fmtDate(new Date().toISOString())}
       </footer>
     </div>
   );

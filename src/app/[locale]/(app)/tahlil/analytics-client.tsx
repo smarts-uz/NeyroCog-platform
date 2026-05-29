@@ -30,7 +30,13 @@ import { useMemo, useState } from "react";
 const mean = (a: number[]) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0);
 const pct = (a: number, b: number) => (b > 0 ? Math.round((a / b) * 100) : 0);
 
-export function AnalyticsClient({ cohort }: { cohort: CohortPatient[] }) {
+export function AnalyticsClient({
+  cohort,
+  initialTab = "dashboard",
+}: {
+  cohort: CohortPatient[];
+  initialTab?: "dashboard" | "roc" | "treatment" | "reports";
+}) {
   return (
     <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-7">
       <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
@@ -49,7 +55,7 @@ export function AnalyticsClient({ cohort }: { cohort: CohortPatient[] }) {
         </Link>
       </div>
 
-      <Tabs defaultValue="dashboard">
+      <Tabs defaultValue={initialTab}>
         <TabsList>
           <TabsTrigger value="dashboard">
             <ClinicalIcon name="clipboard-list" size={15} />

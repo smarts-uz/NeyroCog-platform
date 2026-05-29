@@ -81,21 +81,33 @@
     "title": "Bemorlar",
     "newPatient": "Yangi bemor",
     "empty": "Bemor topilmadi. \"Yangi bemor\" tugmasini bosing.",
+    "toolbar": {
+      "roc": "ROC",
+      "treatment": "Davolash",
+      "reports": "Hisobotlar"
+    },
     "stats": {
       "total": "Jami bemorlar",
       "testsCompleted": "Testlar bajarilgan",
       "inRehab": "Reabilitatsiyada",
-      "newThisWeek": "Yangi bu hafta"
+      "newThisWeek": "Yangi bu hafta",
+      "pocd": "PNB aniqlangan",
+      "highRisk": "Yuqori xavf",
+      "premorbidPlus": "Premorbid +"
     },
     "columns": {
       "number": "№",
       "fish": "F.I.Sh.",
       "age": "Yoshi",
       "premorbid": "Premorbid",
+      "premShort": "Prem.",
       "duration": "Davomiyligi",
-      "prep": "Preparatlar",
+      "durationShort": "Davom.",
+      "prep": "Dori",
       "diagnosis": "Diagnoz",
       "treatment": "Davolash",
+      "training": "Trening",
+      "probability": "Ehtimol",
       "forecast": "Bashorat",
       "actions": ""
     },

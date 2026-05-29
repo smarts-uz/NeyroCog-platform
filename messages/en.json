@@ -82,21 +82,33 @@
     "title": "Patients",
     "newPatient": "New patient",
     "empty": "No patients found. Click \"New patient\".",
+    "toolbar": {
+      "roc": "ROC",
+      "treatment": "Treatment",
+      "reports": "Reports"
+    },
     "stats": {
       "total": "Total patients",
       "testsCompleted": "Tests completed",
       "inRehab": "In rehabilitation",
-      "newThisWeek": "New this week"
+      "newThisWeek": "New this week",
+      "pocd": "POCD detected",
+      "highRisk": "High risk",
+      "premorbidPlus": "Premorbid +"
     },
     "columns": {
       "number": "#",
       "fish": "Full name",
       "age": "Age",
       "premorbid": "Premorbid",
+      "premShort": "Prem.",
       "duration": "Duration",
+      "durationShort": "Dur.",
       "prep": "Drugs",
       "diagnosis": "Diagnosis",
       "treatment": "Treatment",
+      "training": "Training",
+      "probability": "Probability",
       "forecast": "Forecast",
       "actions": ""
     },

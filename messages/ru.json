@@ -82,21 +82,33 @@
     "title": "Пациенты",
     "newPatient": "Новый пациент",
     "empty": "Пациенты не найдены. Нажмите «Новый пациент».",
+    "toolbar": {
+      "roc": "ROC",
+      "treatment": "Лечение",
+      "reports": "Отчёты"
+    },
     "stats": {
       "total": "Всего пациентов",
       "testsCompleted": "Тестов проведено",
       "inRehab": "На реабилитации",
-      "newThisWeek": "Новых за неделю"
+      "newThisWeek": "Новых за неделю",
+      "pocd": "ПНБ выявлен",
+      "highRisk": "Высокий риск",
+      "premorbidPlus": "Преморбид +"
     },
     "columns": {
       "number": "№",
       "fish": "Ф.И.О.",
       "age": "Возраст",
       "premorbid": "Преморбидный фон",
+      "premShort": "Премор.",
       "duration": "Длительность",
+      "durationShort": "Длит.",
       "prep": "Препараты",
       "diagnosis": "Диагноз",
       "treatment": "Лечение",
+      "training": "Тренинг",
+      "probability": "Вероятность",
       "forecast": "Прогноз",
       "actions": ""
     },

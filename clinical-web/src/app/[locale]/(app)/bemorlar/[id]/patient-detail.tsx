@@ -273,6 +273,39 @@ export function PatientDetail({ bundle }: { bundle: PatientDetailBundle }) {
               </div>
             </div>
 
+            {/* Bosqich (timepoint) tanlovi — bitta qatorda, mobil'da scroll */}
+            <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 pb-1">
+              {TP_OPTIONS.map((opt) => {
+                const active = tp === opt.id;
+                const hasData = opt.id === "latest" ? results.length > 0 : tpsWithData.has(opt.id);
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTp(opt.id)}
+                    title={opt.sub}
+                    className={cn(
+                      "shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-colors border",
+                      active
+                        ? "bg-primary text-white border-primary"
+                        : "bg-surface text-ink-2 border-border hover:bg-surface-2",
+                      !hasData && !active && "opacity-45",
+                    )}
+                  >
+                    {opt.label}
+                    <span
+                      className={cn(
+                        "text-[11px] font-medium",
+                        active ? "opacity-80" : "opacity-60",
+                      )}
+                    >
+                      · {opt.sub}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3.5">
               {TESTS.map((test) => (
                 <TestCard
@@ -285,7 +318,7 @@ export function PatientDetail({ bundle }: { bundle: PatientDetailBundle }) {
             </div>
 
             <div className="mt-2">
-              <CompositePanel results={results} patient={patient} />
+              <CompositePanel summaries={summaries} timepoint={tp} />
             </div>
           </TabsContent>
 

@@ -46,7 +46,8 @@ const COG_LABELS = [
 ];
 function cogLabel(score) {
   if (score == null || Number.isNaN(score)) return { label: "—", tone: "neutral" };
-  for (const b of COG_LABELS) if (score >= b.min && score < b.max) return { label: b.label, tone: b.tone };
+  for (const b of COG_LABELS)
+    if (score >= b.min && score < b.max) return { label: b.label, tone: b.tone };
   return { label: "Jiddiy buzilish", tone: "bad" };
 }
 const NORM = {
@@ -72,7 +73,10 @@ const num = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 function normHeader(s) {
-  return String(s ?? "").trim().replace(/\s+/g, " ").toLowerCase();
+  return String(s ?? "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
 }
 function mapJinsi(v) {
   const s = String(raw(v));
@@ -234,7 +238,9 @@ async function main() {
     const CHUNK = 500;
     for (let i = 0; i < testRows.length; i += CHUNK) {
       await sql`insert into test_result ${sql(testRows.slice(i, i + CHUNK))}`;
-      process.stdout.write(`\r→ Test natijalari: ${Math.min(i + CHUNK, testRows.length)} / ${testRows.length}`);
+      process.stdout.write(
+        `\r→ Test natijalari: ${Math.min(i + CHUNK, testRows.length)} / ${testRows.length}`,
+      );
     }
     if (testRows.length) process.stdout.write("\n");
 

@@ -7,8 +7,8 @@ import { Card } from "@/components/ui/card";
 import type { EnginePatient, TestName } from "@/lib/engines/types";
 import { TEST_BY_ID } from "@/lib/tests/meta";
 import { cn } from "@/lib/utils";
-import { Play } from "lucide-react";
-import type { ReactNode } from "react";
+import { Info, Play } from "lucide-react";
+import { type ReactNode, isValidElement } from "react";
 
 export type TestPatient = EnginePatient & { fish?: string; id?: string };
 
@@ -111,9 +111,18 @@ export function TestShell({
         />
       </header>
 
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-auto">
-        {phase === "intro" ? intro : phase === "done" ? done : body}
-      </div>
+      {phase === "running" ? (
+        <div className="flex-1 flex flex-col md:flex-row min-h-0">
+          <TestGuide intro={intro} />
+          <div className="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-auto min-w-0">
+            {body}
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-auto">
+          {phase === "intro" ? intro : done}
+        </div>
+      )}
 
       {hint && phase === "running" ? (
         <div className="px-4 sm:px-6 py-3 bg-surface border-t border-border flex items-center justify-center gap-4 text-sm text-ink-2 text-center">
@@ -121,6 +130,46 @@ export function TestShell({
         </div>
       ) : null}
     </Card>
+  );
+}
+
+// ─── Guide rail (shown beside the test body while running) ────
+function TestGuide({ intro }: { intro: ReactNode }) {
+  const p = isValidElement(intro)
+    ? (intro.props as { title?: string; description?: string; steps?: string[]; note?: string })
+    : {};
+  const steps = p.steps ?? [];
+  if (!steps.length && !p.description) return null;
+  return (
+    <aside className="hidden md:block w-[290px] shrink-0 border-r border-border bg-surface-2 p-5 overflow-auto">
+      <div className="eyebrow mb-2 flex items-center gap-1.5">
+        <Info className="h-3.5 w-3.5" /> Yo'riqnoma
+      </div>
+      {p.title ? (
+        <div className="font-bold text-[15px] text-ink tracking-tight mb-2">{p.title}</div>
+      ) : null}
+      {p.description ? (
+        <p className="text-[13px] leading-relaxed text-ink-2 m-0 mb-3">{p.description}</p>
+      ) : null}
+      {steps.length ? (
+        <ol className="list-none p-0 m-0 flex flex-col gap-2">
+          {steps.map((s, i) => (
+            <li key={s} className="flex items-start gap-2.5">
+              <span className="shrink-0 h-5 w-5 rounded-pill bg-primary-soft text-primary-press inline-flex items-center justify-center font-bold text-[11px] mt-px">
+                {i + 1}
+              </span>
+              <span className="text-[12.5px] leading-snug text-ink-2">{s}</span>
+            </li>
+          ))}
+        </ol>
+      ) : null}
+      {p.note ? (
+        <div className="mt-3 px-2.5 py-2 rounded-lg bg-warn-bg text-amber-900 text-xs flex gap-1.5">
+          <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          {p.note}
+        </div>
+      ) : null}
+    </aside>
   );
 }
 

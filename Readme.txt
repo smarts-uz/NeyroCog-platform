@@ -1,0 +1,2 @@
+Fetch this design file, read its readme, and implement the relevant aspects of the design. https://api.anthropic.com/v1/design/h/MxBz7HJyXZqEaqIZjv4oyw?open_file=clinical_app%2Findex.html
+Implement: clinical_app/index.html

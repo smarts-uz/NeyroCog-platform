@@ -1,0 +1,164 @@
+{
+  "$meta": {
+    "locale": "en",
+    "name": "English",
+    "status": "ai-draft",
+    "note": "AI-translated, requires clinical review before production"
+  },
+  "Common": {
+    "appName": "Cognitive Testing System",
+    "appShort": "CTS",
+    "language": "Language",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "yes": "Yes",
+    "no": "No",
+    "error": "Error",
+    "tryAgain": "Try again"
+  },
+  "Login": {
+    "title": "Sign in",
+    "subtitle": "Enter your email and password",
+    "email": "Email",
+    "emailPlaceholder": "doctor@clinic.uz",
+    "password": "Password",
+    "passwordPlaceholder": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "No account yet?",
+    "signupCta": "Sign up",
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "tooManyAttempts": "Too many attempts — try again later",
+      "network": "Network error. Check your connection.",
+      "unknown": "An unknown error occurred"
+    }
+  },
+  "Signup": {
+    "title": "Sign up",
+    "subtitle": "Create a new doctor account",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Your first and last name",
+    "clinic": "Clinic (optional)",
+    "clinicPlaceholder": "Clinic name",
+    "email": "Email",
+    "emailPlaceholder": "doctor@clinic.uz",
+    "password": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "submit": "Create account",
+    "submitting": "Creating…",
+    "haveAccount": "Already have an account?",
+    "loginCta": "Sign in",
+    "errors": {
+      "emailExists": "This email is already registered",
+      "weakPassword": "Password must be at least 8 characters",
+      "network": "Network error. Check your connection.",
+      "unknown": "An unknown error occurred"
+    }
+  },
+  "Patients": {
+    "title": "Patients",
+    "newPatient": "New patient",
+    "empty": "No patients found. Click \"New patient\".",
+    "stats": {
+      "total": "Total patients",
+      "testsCompleted": "Tests completed",
+      "inRehab": "In rehabilitation",
+      "newThisWeek": "New this week"
+    },
+    "columns": {
+      "number": "#",
+      "fish": "Full name",
+      "age": "Age",
+      "premorbid": "Premorbid",
+      "duration": "Duration",
+      "prep": "Drugs",
+      "diagnosis": "Diagnosis",
+      "treatment": "Treatment",
+      "forecast": "Forecast",
+      "actions": ""
+    },
+    "modal": {
+      "title": "Add new patient",
+      "fish": "Full name",
+      "fishPlaceholder": "Patient's full name",
+      "jinsi": "Sex",
+      "male": "Male",
+      "female": "Female",
+      "birthDate": "Date of birth",
+      "age": "Age",
+      "ageAuto": "calculated from date of birth",
+      "premorbid": "Premorbid neurological background",
+      "premorbidOff": "None (healthy)",
+      "premorbidOn": "Present",
+      "prep": "Number of anesthetic drugs",
+      "operationTimes": "Operation times",
+      "startTime": "Start",
+      "endTime": "End",
+      "duration": "Duration",
+      "durationAuto": "end − start",
+      "durationInvalid": "invalid interval",
+      "durationEmpty": "enter times",
+      "save": "Save patient",
+      "saving": "Saving…",
+      "validation": {
+        "fishRequired": "Full name is required",
+        "birthRequired": "Date of birth is required",
+        "ageInvalid": "Age must be between 0 and 18",
+        "durationInvalid": "Duration must be positive"
+      }
+    }
+  },
+  "PatientView": {
+    "back": "Patient list",
+    "registered": "registered",
+    "sex": "Sex",
+    "age": "Age",
+    "birthDate": "Date of birth",
+    "premorbid": "Premorbid background",
+    "premorbidOn": "Present",
+    "premorbidOff": "None",
+    "duration": "Duration",
+    "durationUnit": "min",
+    "prepCount": "Drug count",
+    "operationTimes": "Operation times",
+    "start": "Start",
+    "end": "End",
+    "edit": "Edit",
+    "export": "Export",
+    "tabs": {
+      "diagnostic": "Diagnostic tests",
+      "forecast": "POCD forecast",
+      "rehab": "Rehabilitation"
+    },
+    "diagnosticTitle": "Diagnostic tests",
+    "diagnosticSubtitle": "Available tests for the patient. Click to start a test.",
+    "completedCount": "completed",
+    "startTest": "Start test",
+    "retakeTest": "Retake",
+    "done": "Completed",
+    "sessions": "session",
+    "comingSoon": "Coming soon",
+    "abort": "Cancel",
+    "rehabTitle": "Rehabilitation — Program 2",
+    "forecastTitle": "POCD development forecast"
+  },
+  "Errors": {
+    "404": {
+      "title": "Page not found",
+      "subtitle": "The page you're looking for doesn't exist.",
+      "back": "Back to home"
+    },
+    "500": {
+      "title": "Server error",
+      "subtitle": "Something went wrong. Please try again.",
+      "retry": "Reload"
+    }
+  }
+}

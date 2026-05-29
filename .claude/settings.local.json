@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(curl -s -o /tmp/design.html -w \"HTTP: %{http_code}\\\\nSize: %{size_download}\\\\nContent-Type: %{content_type}\\\\n\" \"https://api.anthropic.com/v1/design/h/OpwNBC2YE8nFJ0oU3MjXZg\")",
+      "Read(//tmp/**)",
+      "Bash(mv /tmp/design.html /tmp/design.tar.gz)",
+      "Bash(mkdir -p /tmp/design)",
+      "Bash(tar -xzf /tmp/design.tar.gz -C /tmp/design)",
+      "Bash(claude mcp *)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "supabase"
+  ],
+  "enableAllProjectMcpServers": true
+}

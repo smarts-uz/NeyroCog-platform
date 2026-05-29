@@ -46,7 +46,7 @@ const LMWTTest = ({ patient, onAbort, onFinish }) => {
   return (
     <TestShell
       patient={patient} test={test} phase={phase === "intro" ? "intro" : "running"}
-      onAbort={onAbort}
+      onAbort={onAbort} onSave={() => submit()}
       intro={
         <TestIntro test={test}
           title="Lurya Memory Word Test (LMWT)"

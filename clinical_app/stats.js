@@ -148,8 +148,8 @@
 
   // ===== ROC curve & AUC =====
   // scores: array of numbers (higher = more positive)
-  // labels: array of 0/1 (1 = positive case = POCD)
-  // direction: "high" = high score → POCD positive; "low" = low score → POCD positive
+  // labels: array of 0/1 (1 = positive case = PNB)
+  // direction: "high" = high score → PNB positive; "low" = low score → PNB positive
   function rocCurve(scores, labels, direction = "low") {
     const n = scores.length;
     const data = scores.map((s, i) => ({ s, y: labels[i] }))

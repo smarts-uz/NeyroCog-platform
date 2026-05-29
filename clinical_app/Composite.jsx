@@ -5,7 +5,7 @@
 //   timepoint: "PreOp" | "PostOp" | "PostTx" | "latest"
 //   "latest" = for each test, use the most recent completed result.
 
-const Composite = ({ patient, timepoint = "PreOp" }) => {
+const Composite = ({ patient, timepoint = "PreOp", hideBreakdown = false }) => {
   const K = window.KNBT;
 
   const results = patient.results || {};
@@ -58,7 +58,7 @@ const Composite = ({ patient, timepoint = "PreOp" }) => {
           <div className="eyebrow">KNBT Composite</div>
         </div>
         <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "var(--ink-2)" }}>
-          Hech bo'lmaganda <b style={{ color: "var(--ink)" }}>bitta test</b> bajarilgandan keyin
+          <b style={{ color: "var(--ink)" }}>Barcha testlar</b> bajarilgandan keyin
           KNBT Composite hisoblanadi.
         </div>
       </div>
@@ -148,6 +148,7 @@ const Composite = ({ patient, timepoint = "PreOp" }) => {
       </div>
 
       {/* Per-test breakdown */}
+      {!hideBreakdown && (
       <div style={{ padding: 20 }}>
         <div className="eyebrow" style={{ marginBottom: 12 }}>Test bo'yicha taqsimot</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10 }}>
@@ -173,6 +174,7 @@ const Composite = ({ patient, timepoint = "PreOp" }) => {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 };

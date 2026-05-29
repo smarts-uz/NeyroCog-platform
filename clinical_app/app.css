@@ -1,62 +1,68 @@
-/* ===== Kognitiv Test Tizimi — design tokens (v2, modern + mobile-first) ===== */
+/* ===== NeyroCog — design tokens (v2, modern + mobile-first) ===== */
+@font-face { font-family: "Outfit"; font-weight: 100; src: url("../fonts/Outfit-Thin.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Outfit"; font-weight: 200; src: url("../fonts/Outfit-ExtraLight.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Outfit"; font-weight: 300; src: url("../fonts/Outfit-Light.ttf") format("truetype"); font-display: swap; }
 @font-face { font-family: "Outfit"; font-weight: 400; src: url("../fonts/Outfit-Regular.ttf") format("truetype"); font-display: swap; }
 @font-face { font-family: "Outfit"; font-weight: 500; src: url("../fonts/Outfit-Medium.ttf") format("truetype"); font-display: swap; }
 @font-face { font-family: "Outfit"; font-weight: 600; src: url("../fonts/Outfit-SemiBold.ttf") format("truetype"); font-display: swap; }
 @font-face { font-family: "Outfit"; font-weight: 700; src: url("../fonts/Outfit-Bold.ttf") format("truetype"); font-display: swap; }
 @font-face { font-family: "Outfit"; font-weight: 800; src: url("../fonts/Outfit-ExtraBold.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Outfit"; font-weight: 900; src: url("../fonts/Outfit-Black.ttf") format("truetype"); font-display: swap; }
 
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 :root {
-  /* Surfaces — warmer, calmer slate */
-  --bg:        #F4F6FA;        /* page */
+  /* Surfaces — GitHub-flat: white canvas + subtle gray inset */
+  --bg:        #FFFFFF;        /* page (GitHub canvas-default) */
   --surface:   #FFFFFF;
-  --surface-2: #F8FAFC;        /* slate-50 */
-  --surface-3: #EEF2F7;        /* subtle hover wash */
+  --surface-2: #F6F8FA;        /* canvas-subtle — secondary surfaces */
+  --surface-3: #EFF2F5;        /* hover wash */
 
-  --ink:       #0F172A;        /* slate-900 */
-  --ink-2:     #3D4A5C;        /* slate-700-ish, slightly warmer */
-  --ink-3:     #677488;        /* slate-500, better contrast than 64748B */
-  --ink-4:     #94A3B8;        /* slate-400 */
+  --ink:       #1F2328;        /* GitHub fg-default */
+  --ink-2:     #404954;        /* fg slightly muted */
+  --ink-3:     #59636E;        /* fg-muted */
+  --ink-4:     #818B98;        /* fg-subtle */
 
-  --border:    rgba(15, 23, 42, 0.07);
-  --border-strong: rgba(15, 23, 42, 0.14);
-  --divider:   rgba(15, 23, 42, 0.055);
+  /* Crisp visible borders (GitHub border-default #d1d9e0) */
+  --border:    #D1D9E0;
+  --border-strong: #BCC4CD;
+  --divider:   #E4E8EC;
 
-  /* Primary — clinical teal */
+  /* Primary — clinical teal (brand) kept; GitHub-shaped buttons */
   --primary:       #0F766E;
   --primary-hover: #0E6B63;
   --primary-press: #115E59;
   --primary-soft:  #CCFBF1;
   --primary-soft-2:#F0FDFA;
-  --primary-ring:  rgba(15, 118, 110, 0.18);
+  --primary-ring:  rgba(15, 118, 110, 0.30);
 
-  /* Accent — amber */
-  --accent:        #D97706;
-  --accent-soft:   #FEF3C7;
+  /* Accent — GitHub blue for links/info moments */
+  --accent:        #0969DA;
+  --accent-soft:   #DDF4FF;
+  --link:          #0969DA;
 
   /* Semantic */
-  --ok:        #16A34A;  --ok-bg:   #DCFCE7;
-  --warn:      #D97706;  --warn-bg: #FEF3C7;
-  --err:       #DC2626;  --err-bg:  #FEE2E2;
-  --info:      #2563EB;  --info-bg: #DBEAFE;
+  --ok:        #1A7F37;  --ok-bg:   #DAFBE1;
+  --warn:      #9A6700;  --warn-bg: #FFF8C5;
+  --err:       #CF222E;  --err-bg:  #FFEBE9;
+  --info:      #0969DA;  --info-bg: #DDF4FF;
 
   /* Type */
-  --font-sans: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --font-sans: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  /* Radii — softer, more modern */
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --r-xl: 22px;
+  /* Radii — GitHub uses tight 6px corners */
+  --r-sm: 6px;
+  --r-md: 6px;
+  --r-lg: 8px;
+  --r-xl: 12px;
   --r-pill: 999px;
 
-  /* Shadows — soft, layered, low-contrast (modern "lifted") */
-  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08), 0 1px 4px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 16px 48px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(15, 23, 42, 0.06);
+  /* Shadows — GitHub is near-flat; borders do the work */
+  --shadow-xs: 0 1px 0 rgba(31, 35, 40, 0.04);
+  --shadow-sm: 0 1px 0 rgba(31, 35, 40, 0.04);
+  --shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15), 0 0 0 1px rgba(31,35,40,0.04);
+  --shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.2);
 
   /* Motion */
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -68,21 +74,21 @@
   --content-max: 1320px;
 }
 
-/* ===== Dark mode ===== */
+/* ===== Dark mode — GitHub dark (dimmed) ===== */
 [data-theme="dark"] {
-  --bg:        #0B1120;        /* deep slate */
-  --surface:   #131C2E;
-  --surface-2: #1A2436;
-  --surface-3: #232F44;
+  --bg:        #0D1117;        /* GitHub canvas-default dark */
+  --surface:   #0D1117;
+  --surface-2: #161B22;        /* canvas-subtle */
+  --surface-3: #21262D;        /* hover */
 
-  --ink:       #F1F5F9;
-  --ink-2:     #C2CCDA;
-  --ink-3:     #8C9AAE;
-  --ink-4:     #64748B;
+  --ink:       #E6EDF3;
+  --ink-2:     #C9D1D9;
+  --ink-3:     #8B949E;
+  --ink-4:     #6E7681;
 
-  --border:    rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.18);
-  --divider:   rgba(255, 255, 255, 0.07);
+  --border:    #30363D;
+  --border-strong: #3D444D;
+  --divider:   #21262D;
 
   --primary:       #2DD4BF;   /* brighter teal for dark bg */
   --primary-hover: #5EEAD4;
@@ -91,18 +97,17 @@
   --primary-soft-2:#0F3A37;
   --primary-ring:  rgba(45, 212, 191, 0.28);
 
-  --accent:        #FBBF24;
-  --accent-soft:   #422006;
+  --accent:        #2F81F7;  --accent-soft:   #121D2F;  --link: #2F81F7;
 
-  --ok:   #4ADE80;  --ok-bg:   #14331F;
-  --warn: #FBBF24;  --warn-bg: #422006;
-  --err:  #F87171;  --err-bg:  #3B1414;
-  --info: #60A5FA;  --info-bg: #14213D;
+  --ok:   #3FB950;  --ok-bg:   #0F2417;
+  --warn: #D29922;  --warn-bg: #272115;
+  --err:  #F85149;  --err-bg:  #25171A;
+  --info: #2F81F7;  --info-bg: #121D2F;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-xs: 0 0 transparent;
+  --shadow-sm: 0 0 transparent;
+  --shadow-md: 0 3px 6px rgba(1, 4, 9, 0.5), 0 0 0 1px #30363D;
+  --shadow-lg: 0 8px 24px rgba(1, 4, 9, 0.6);
 
   color-scheme: dark;
 }
@@ -142,10 +147,10 @@ body {
   font-family: var(--font-sans);
   font-weight: 600;
   font-size: 14px;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: var(--r-md);
-  padding: 0 18px;
-  height: 42px;
+  padding: 0 16px;
+  height: 36px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -159,25 +164,40 @@ body {
 }
 .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--primary-ring); }
 .btn:active { transform: translateY(0.5px); }
-.btn-primary { background: var(--primary); color: #FFF; box-shadow: var(--shadow-xs); }
-.btn-primary:hover { background: var(--primary-hover); box-shadow: var(--shadow-sm); }
+.btn-primary { background: var(--primary); color: #FFF; border: 1px solid rgba(27,31,36,0.15); }
+.btn-primary:hover { background: var(--primary-hover); }
 .btn-primary:active { background: var(--primary-press); }
-.btn-secondary { background: var(--surface); color: var(--ink); border: 1px solid var(--border-strong); }
-.btn-secondary:hover { background: var(--surface-2); border-color: rgba(15,23,42,0.22); }
+.btn-secondary { background: var(--surface-2); color: var(--ink); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--surface-3); border-color: var(--border-strong); }
 .btn-ghost { background: transparent; color: var(--ink-2); }
-.btn-ghost:hover { background: rgba(15, 23, 42, 0.05); color: var(--ink); }
+.btn-ghost:hover { background: var(--surface-3); color: var(--ink); }
 .btn-danger { background: var(--err); color: #FFF; }
 .btn-danger:hover { background: #B91C1C; }
-.btn-lg { height: 50px; padding: 0 24px; font-size: 16px; border-radius: var(--r-lg); }
-.btn-sm { height: 34px; padding: 0 13px; font-size: 13px; border-radius: var(--r-sm); }
+.btn-lg { height: 46px; padding: 0 22px; font-size: 15px; border-radius: var(--r-lg); }
+.btn-sm { height: 30px; padding: 0 12px; font-size: 12.5px; border-radius: var(--r-sm); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .btn:disabled:active { transform: none; }
 
+.ktt-del-btn:hover { background: var(--err-bg) !important; color: var(--err) !important; border-color: color-mix(in srgb, var(--err) 35%, transparent) !important; }
+
+/* Center page title: hide at mid widths where it can collide with the
+   breadcrumb / metrics / user chip. The breadcrumb still provides context. */
+@media (max-width: 1160px) {
+  .ktt-page-title { display: none !important; }
+}
+
+.ktt-back-btn:hover { background: var(--surface-2); color: var(--ink); border-color: var(--border-strong); }
+.ktt-back-btn:active { transform: scale(0.92); }
+.ktt-back-btn:hover .ktt-back-tip { opacity: 1; transform: translateY(0); }
+
+.ktt-foot-link { transition: color 120ms var(--ease); }
+.ktt-foot-link:hover { color: var(--primary) !important; text-decoration: underline; }
+
 .input {
   font-family: var(--font-sans);
-  font-size: 15px;
-  padding: 0 13px;
-  height: 44px;
+  font-size: 14px;
+  padding: 0 12px;
+  height: 40px;
   border-radius: var(--r-md);
   background: var(--surface);
   color: var(--ink);
@@ -205,16 +225,16 @@ textarea.input { height: auto; padding: 11px 13px; line-height: 1.5; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .eyebrow {
   font-family: var(--font-sans);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--primary);
+  color: var(--ink-3);
 }
 
 .pill {
@@ -224,23 +244,34 @@ textarea.input { height: auto; padding: 11px 13px; line-height: 1.5; }
   font-family: var(--font-sans);
   font-weight: 600;
   font-size: 12px;
-  padding: 4px 10px;
+  padding: 2px 10px;
   border-radius: 999px;
   background: var(--surface-2);
   color: var(--ink-2);
   border: 1px solid var(--border);
-  letter-spacing: -0.003em;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 .pill-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--ink-3); }
-.pill.primary { background: var(--primary-soft); color: var(--primary-press); border-color: rgba(15, 118, 110, 0.18); }
+.pill.primary { background: var(--primary-soft); color: var(--primary); border-color: rgba(15, 118, 110, 0.18); }
 .pill.primary .pill-dot { background: var(--primary); }
-.pill.ok { background: var(--ok-bg); color: #166534; border-color: rgba(22,163,74,0.18); }
+.pill.ok { background: var(--ok-bg); color: var(--ok); border-color: rgba(22,163,74,0.18); }
 .pill.ok .pill-dot { background: var(--ok); }
-.pill.warn { background: var(--warn-bg); color: #92400E; border-color: rgba(217,119,6,0.18); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); border-color: rgba(217,119,6,0.18); }
 .pill.warn .pill-dot { background: var(--warn); }
 
 /* ===== Responsive / mobile-first ===== */
+
+/* Tablet (≤1024px): the patient sidebar+content split squeezes the 3 timepoint
+   cards into unreadable slivers — collapse to a single column and let the
+   timepoint / 3-up grids wrap instead of cramming into fixed thirds. */
+@media (max-width: 1024px) {
+  [data-grid="patient"] { grid-template-columns: 1fr !important; }
+  .ktt-patient-aside { position: static !important; }
+  [data-grid="3"] { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important; }
+  [data-grid="2"] { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important; }
+}
+
 @media (max-width: 768px) {
   body { font-size: 14px; }
 
@@ -266,6 +297,12 @@ textarea.input { height: auto; padding: 11px 13px; line-height: 1.5; }
   .ktt-user { padding: 4px !important; }
   .ktt-user > div:last-child { display: none; }
   .ktt-hide-mobile { display: none; }
+
+  /* Footer collapses to two columns */
+  .ktt-footer-grid { grid-template-columns: 1fr 1fr !important; gap: 22px !important; }
+}
+@media (max-width: 440px) {
+  .ktt-footer-grid { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 520px) {
@@ -273,12 +310,26 @@ textarea.input { height: auto; padding: 11px 13px; line-height: 1.5; }
   .btn { padding: 0 14px; }
 }
 
-/* Respect reduced motion */
+/* Test / training run layout: guide panel left, body right; stacks on mobile */
+.ktt-run-layout { display: flex; align-items: stretch; }
+@media (max-width: 860px) {
+  .ktt-run-layout { flex-direction: column; }
+  .ktt-guide { width: auto !important; border-right: 0 !important; border-bottom: 1px solid var(--border); max-height: 168px; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  /* Entrance animations use fill-mode:both — under reduced motion they can stick at
+     the hidden "from" state (opacity 0). Force the visible final state so content
+     never disappears for users with reduced motion enabled. */
+  .ktt-anim-fade, .ktt-anim-up, .ktt-anim-scale, .ktt-stagger > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* ===== Touch / test ergonomics ===== */
+@keyframes kttPop { 0% { transform: scale(0.2); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
 button, [role="button"], input, select, textarea, a { touch-action: manipulation; }
 
 /* Test/training boards: scale to viewport, never overflow */
@@ -295,3 +346,40 @@ svg.ktt-board { max-width: 100%; height: auto; touch-action: none; }
   /* DeLong comparison grid stacks */
   .ktt-delong-grid { grid-template-columns: 1fr !important; }
 }
+
+/* ===== Motion: entrance, transitions, micro-interactions ===== */
+@keyframes kttFadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes kttFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes kttScaleIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+@keyframes kttShimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+@keyframes kttSpin { to { transform: rotate(360deg); } }
+.ktt-spin { animation: kttSpin 700ms linear infinite; }
+
+.ktt-anim-fade { animation: kttFade 280ms var(--ease) both; }
+.ktt-anim-up { animation: kttFadeUp 320ms var(--ease) both; }
+.ktt-anim-scale { animation: kttScaleIn 240ms var(--ease) both; }
+
+/* Stagger helper: children fade up in sequence */
+.ktt-stagger > * { animation: kttFadeUp 360ms var(--ease) both; }
+.ktt-stagger > *:nth-child(1){animation-delay:.02s}
+.ktt-stagger > *:nth-child(2){animation-delay:.06s}
+.ktt-stagger > *:nth-child(3){animation-delay:.10s}
+.ktt-stagger > *:nth-child(4){animation-delay:.14s}
+.ktt-stagger > *:nth-child(5){animation-delay:.18s}
+.ktt-stagger > *:nth-child(6){animation-delay:.22s}
+
+/* Card hover lift — unified */
+.ktt-lift { transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease); }
+.ktt-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+
+/* Skeleton loaders */
+.ktt-skel {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 37%, var(--surface-2) 63%);
+  background-size: 800px 100%;
+  animation: kttShimmer 1.4s linear infinite;
+  border-radius: var(--r-sm);
+}
+
+/* Press ripple feel for tappable surfaces */
+.ktt-tap { transition: transform 90ms var(--ease); }
+.ktt-tap:active { transform: scale(0.97); }

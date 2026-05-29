@@ -104,6 +104,7 @@ const TrackingTraining = ({ patient, onAbort, onFinish }) => {
   return (
     <TrainingShell
       patient={patient} exercise={ex} phase={phase} onAbort={onAbort}
+      onSave={() => onFinish({ exerciseId: "tracking", score: scoreRef.current, accuracy: insideAccumRef.current / Math.max(1, Date.now() - sessionStart), duration: Date.now() - sessionStart, level: Math.floor((Date.now() - sessionStart) / TR_LEVEL_MS) + 1 })}
       metrics={phase === "running" ? [
         { label: "Daraja", value: level, icon: "trending-up", tone: "primary", mono: true },
         { label: "Vaqt", value: `${remainSec} s`, icon: "clock", mono: true },

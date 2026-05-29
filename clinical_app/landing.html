@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>NeyroCog — Bolalarda operatsiyadan keyingi kognitiv buzilishni baholash tizimi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="NeyroCog — maktab yoshidagi bolalarda perioperativ neyrokognitiv buzilishni (PNB) erta diagnostika qilish, xavfni bashorat qilish va raqamli reabilitatsiya qilish uchun klinik platforma. 7 ta KNBT testi, ISPOCD baholash, statistik tahlil va offline ishlash.">
+<meta name="keywords" content="PNB, POCD, kognitiv test, KNBT, pediatriya, anesteziya, neyrokognitiv, reabilitatsiya, NeyroCog">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NeyroCog — Pediatrik Kognitiv Test Tizimi">
+<meta property="og:description" content="Bolalarda operatsiyadan keyingi kognitiv buzilishni baholash, bashorat va reabilitatsiya qilishning to'liq klinik tizimi.">
+<meta property="og:image" content="screenshots/landing/dashboard.png">
+<meta name="theme-color" content="#0F766E">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root{
+    --primary:#0F766E; --primary-press:#115E59; --primary-soft:#CCFBF1; --primary-soft-2:#F0FDFA;
+    --accent:#2563EB; --accent-soft:#DBEAFE;
+    --grad: linear-gradient(135deg,#2B7FD4 0%,#1FA6B0 50%,#3AB87A 100%);
+    --ink:#0F172A; --ink-2:#334155; --ink-3:#64748B; --ink-4:#94A3B8;
+    --bg:#FFFFFF; --bg-2:#F8FAFC; --bg-3:#F1F5F9;
+    --border:#E2E8F0; --border-2:#CBD5E1;
+    --ok:#16A34A; --warn:#D97706; --err:#DC2626;
+    --r:14px; --r-lg:20px; --r-pill:999px;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.05);
+    --shadow:0 10px 30px -12px rgba(15,23,42,.18), 0 4px 10px -4px rgba(15,23,42,.08);
+    --shadow-lg:0 30px 60px -20px rgba(15,23,42,.28);
+    --maxw:1180px;
+    --font:"Outfit",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; -webkit-text-size-adjust:100%;}
+  body{margin:0; font-family:var(--font); color:var(--ink); background:var(--bg);
+    font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+  h1,h2,h3,h4{margin:0; line-height:1.12; letter-spacing:-.02em; font-weight:800;}
+  p{margin:0;}
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
+  .mono{font-family:var(--mono);}
+  .grad-text{background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
+
+  /* Buttons */
+  .btn{display:inline-flex; align-items:center; gap:9px; font-family:var(--font); font-weight:600;
+    font-size:15px; padding:0 20px; height:48px; border-radius:var(--r); border:1px solid transparent;
+    cursor:pointer; transition:background .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease), box-shadow .18s var(--ease); white-space:nowrap;}
+  .btn svg{width:18px; height:18px;}
+  .btn-primary{background:var(--primary); color:#fff; box-shadow:0 6px 18px -6px rgba(15,118,110,.5);}
+  .btn-primary:hover{background:var(--primary-press); box-shadow:0 10px 24px -6px rgba(15,118,110,.6);}
+  .btn-ghost{background:transparent; color:var(--ink); border-color:var(--border-2);}
+  .btn-ghost:hover{background:var(--bg-3); border-color:var(--ink-4);}
+  .btn-sm{height:42px; font-size:14px; padding:0 16px;}
+  .btn-lg{height:54px; font-size:16.5px; padding:0 28px;}
+
+  /* Header */
+  header.nav{position:sticky; top:0; z-index:60; transition:background .25s var(--ease), box-shadow .25s var(--ease), border-color .25s var(--ease);
+    border-bottom:1px solid transparent;}
+  header.nav.scrolled{background:rgba(255,255,255,.82); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border); box-shadow:0 4px 20px -16px rgba(15,23,42,.4);}
+  .nav-inner{display:flex; align-items:center; gap:20px; height:72px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:800; font-size:20px; letter-spacing:-.03em;}
+  .brand .mark{width:36px; height:36px; flex-shrink:0;}
+  .nav-links{display:flex; align-items:center; gap:4px; margin-left:18px;}
+  .nav-links a{padding:9px 13px; border-radius:10px; font-size:14.5px; font-weight:500; color:var(--ink-2); transition:background .15s, color .15s;}
+  .nav-links a:hover{background:var(--bg-3); color:var(--ink);}
+  .nav-cta{margin-left:auto; display:flex; align-items:center; gap:10px;}
+  .hamburger{display:none; width:44px; height:44px; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:11px; background:#fff; cursor:pointer; color:var(--ink);}
+  .hamburger svg{width:22px; height:22px;}
+
+  /* Mobile menu */
+  .mobile-menu{position:fixed; inset:72px 0 auto 0; background:#fff; border-bottom:1px solid var(--border); box-shadow:var(--shadow);
+    padding:16px 24px 24px; display:none; flex-direction:column; gap:6px; z-index:55;}
+  .mobile-menu.open{display:flex;}
+  .mobile-menu a{padding:13px 14px; border-radius:11px; font-weight:600; color:var(--ink-2);}
+  .mobile-menu a:hover{background:var(--bg-3);}
+  .mobile-menu .btn{margin-top:8px; justify-content:center;}
+
+  /* Hero */
+  .hero{position:relative; padding:74px 0 40px; overflow:hidden;}
+  .hero::before{content:""; position:absolute; top:-280px; right:-180px; width:680px; height:680px; border-radius:50%;
+    background:radial-gradient(circle, rgba(31,166,176,.16), rgba(58,184,122,.05) 55%, transparent 70%); z-index:-1;}
+  .hero::after{content:""; position:absolute; top:-160px; left:-200px; width:520px; height:520px; border-radius:50%;
+    background:radial-gradient(circle, rgba(43,127,212,.12), transparent 68%); z-index:-1;}
+  .hero-grid{display:grid; grid-template-columns:1.05fr 1fr; gap:48px; align-items:center;}
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; padding:6px 13px; border-radius:var(--r-pill);
+    background:var(--primary-soft-2); border:1px solid var(--primary-soft); color:var(--primary-press);
+    font-size:13px; font-weight:600; margin-bottom:22px;}
+  .eyebrow svg{width:15px; height:15px;}
+  .hero h1{font-size:clamp(34px,4.6vw,56px); font-weight:900; letter-spacing:-.035em;}
+  .hero .lede{font-size:clamp(16px,1.7vw,19px); color:var(--ink-2); margin-top:20px; max-width:540px;}
+  .hero-cta{display:flex; gap:13px; margin-top:30px; flex-wrap:wrap;}
+  .hero-stats{display:flex; gap:30px; margin-top:38px; flex-wrap:wrap;}
+  .hero-stats .s b{font-family:var(--mono); font-size:26px; font-weight:700; color:var(--ink); display:block; letter-spacing:-.02em;}
+  .hero-stats .s span{font-size:13px; color:var(--ink-3); font-weight:500;}
+
+  /* Browser mockup */
+  .mock{border-radius:var(--r-lg); overflow:hidden; border:1px solid var(--border); background:#fff; box-shadow:var(--shadow-lg);}
+  .mock-bar{display:flex; align-items:center; gap:7px; padding:11px 14px; background:var(--bg-2); border-bottom:1px solid var(--border);}
+  .mock-bar i{width:11px; height:11px; border-radius:50%; display:block;}
+  .mock-bar .u{flex:1; margin-left:10px; height:22px; border-radius:6px; background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; padding:0 10px; font-family:var(--mono); font-size:11px; color:var(--ink-4);}
+  .mock img{width:100%; display:block;}
+  .hero-mock{transform:perspective(1600px) rotateY(-8deg) rotateX(2deg); transition:transform .5s var(--ease);}
+  .hero-mock:hover{transform:perspective(1600px) rotateY(-3deg) rotateX(1deg);}
+
+  /* Sections */
+  section{padding:84px 0;}
+  .sec-head{text-align:center; max-width:680px; margin:0 auto 52px;}
+  .sec-head .kick{font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--primary); margin-bottom:14px;}
+  .sec-head h2{font-size:clamp(28px,3.4vw,40px); font-weight:800;}
+  .sec-head p{color:var(--ink-3); margin-top:16px; font-size:17px;}
+
+  /* Trust band */
+  .trust{background:var(--bg-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:36px 0;}
+  .trust-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:24px; text-align:center;}
+  .trust-grid .t b{font-family:var(--mono); font-size:34px; font-weight:700; color:var(--primary); display:block; letter-spacing:-.02em;}
+  .trust-grid .t span{font-size:14px; color:var(--ink-3); font-weight:500;}
+
+  /* Feature cards */
+  .feat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  .feat{background:#fff; border:1px solid var(--border); border-radius:var(--r-lg); padding:26px; transition:transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s;}
+  .feat:hover{transform:translateY(-4px); box-shadow:var(--shadow); border-color:var(--border-2);}
+  .feat .ic{width:48px; height:48px; border-radius:13px; display:flex; align-items:center; justify-content:center; margin-bottom:16px;}
+  .feat .ic svg{width:24px; height:24px;}
+  .feat h3{font-size:18px; font-weight:700; margin-bottom:8px; letter-spacing:-.01em;}
+  .feat p{font-size:14.5px; color:var(--ink-3); line-height:1.55;}
+  .cat-label{grid-column:1/-1; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); margin:18px 0 2px; padding-left:2px;}
+  .cat-label:first-child{margin-top:0;}
+
+  /* Zigzag showcase */
+  .zig{display:grid; grid-template-columns:1fr 1fr; gap:54px; align-items:center; margin-bottom:90px;}
+  .zig:last-child{margin-bottom:0;}
+  .zig.rev .zig-text{order:2;}
+  .zig-text .tag{font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--primary); margin-bottom:12px;}
+  .zig-text h3{font-size:clamp(24px,2.6vw,32px); font-weight:800; margin-bottom:16px;}
+  .zig-text p{color:var(--ink-2); font-size:16px; margin-bottom:18px;}
+  .zig-list{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:11px;}
+  .zig-list li{display:flex; gap:11px; align-items:flex-start; font-size:15px; color:var(--ink-2);}
+  .zig-list svg{width:20px; height:20px; color:var(--primary); flex-shrink:0; margin-top:2px;}
+
+  /* How it works */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:20px; counter-reset:step;}
+  .step{position:relative; background:#fff; border:1px solid var(--border); border-radius:var(--r-lg); padding:28px 22px;}
+  .step .n{width:42px; height:42px; border-radius:12px; background:var(--grad); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:700; font-size:18px; margin-bottom:16px;}
+  .step h3{font-size:17px; font-weight:700; margin-bottom:8px;}
+  .step p{font-size:14px; color:var(--ink-3);}
+
+  /* Audience */
+  .aud-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:18px;}
+  .aud{background:#fff; border:1px solid var(--border); border-radius:var(--r-lg); padding:26px; transition:border-color .2s, box-shadow .2s, transform .2s;}
+  .aud:hover{border-color:var(--primary-soft); box-shadow:var(--shadow); transform:translateY(-3px);}
+  .aud .ic{width:46px;height:46px;border-radius:50%;background:var(--primary-soft-2);color:var(--primary);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .aud .ic svg{width:22px;height:22px;}
+  .aud h3{font-size:17px; font-weight:700; margin-bottom:8px;}
+  .aud p{font-size:14px; color:var(--ink-3);}
+
+  /* Showcase gallery */
+  .gallery{display:grid; grid-template-columns:repeat(2,1fr); gap:22px;}
+  .gallery .g{border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; background:#fff; box-shadow:var(--shadow-sm); transition:transform .25s var(--ease), box-shadow .25s;}
+  .gallery .g:hover{transform:translateY(-4px); box-shadow:var(--shadow);}
+  .gallery .g .cap{padding:14px 18px; border-top:1px solid var(--border);}
+  .gallery .g .cap b{font-size:15px; font-weight:700;}
+  .gallery .g .cap span{display:block; font-size:13px; color:var(--ink-3); margin-top:2px;}
+  .showcase-cta{text-align:center; margin-top:44px;}
+
+  /* Pricing */
+  .price-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:stretch;}
+  .price{background:#fff; border:1px solid var(--border); border-radius:var(--r-lg); padding:30px 26px; display:flex; flex-direction:column;}
+  .price.feat-plan{border:2px solid var(--primary); box-shadow:var(--shadow); position:relative;}
+  .price .pop{position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--primary); color:#fff; font-size:12px; font-weight:700; padding:5px 14px; border-radius:var(--r-pill);}
+  .price h3{font-size:19px; font-weight:700;}
+  .price .amt{font-family:var(--mono); font-size:38px; font-weight:700; margin:14px 0 4px; letter-spacing:-.03em;}
+  .price .amt small{font-size:15px; color:var(--ink-3); font-weight:500;}
+  .price .desc{font-size:14px; color:var(--ink-3); min-height:40px;}
+  .price ul{list-style:none; padding:0; margin:20px 0 24px; display:flex; flex-direction:column; gap:11px; flex:1;}
+  .price li{display:flex; gap:10px; font-size:14.5px; color:var(--ink-2);}
+  .price li svg{width:18px; height:18px; color:var(--primary); flex-shrink:0;}
+  .price .btn{justify-content:center; width:100%;}
+
+  /* Testimonials */
+  .quotes{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .quote{background:#fff; border:1px solid var(--border); border-radius:var(--r-lg); padding:26px;}
+  .quote .stars{display:flex; gap:3px; color:#F59E0B; margin-bottom:14px;}
+  .quote .stars svg{width:17px; height:17px; fill:#F59E0B;}
+  .quote p{font-size:15px; color:var(--ink-2); line-height:1.6;}
+  .quote .who{display:flex; align-items:center; gap:12px; margin-top:18px;}
+  .quote .av{width:42px; height:42px; border-radius:50%; background:var(--grad); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px;}
+  .quote .who b{font-size:14.5px; display:block;}
+  .quote .who span{font-size:13px; color:var(--ink-3);}
+
+  /* FAQ */
+  .faq{max-width:780px; margin:0 auto; display:flex; flex-direction:column; gap:12px;}
+  .qa{border:1px solid var(--border); border-radius:var(--r); background:#fff; overflow:hidden;}
+  .qa button{width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 22px; background:none; border:0; cursor:pointer; font-family:var(--font); font-size:16.5px; font-weight:600; color:var(--ink); text-align:left;}
+  .qa button svg{width:20px; height:20px; color:var(--ink-3); flex-shrink:0; transition:transform .25s var(--ease);}
+  .qa.open button svg{transform:rotate(180deg);}
+  .qa .a{max-height:0; overflow:hidden; transition:max-height .3s var(--ease);}
+  .qa .a p{padding:0 22px 20px; color:var(--ink-3); font-size:15px;}
+
+  /* Final CTA */
+  .final{background:var(--grad); border-radius:28px; padding:64px 40px; text-align:center; color:#fff; position:relative; overflow:hidden;}
+  .final::before{content:""; position:absolute; inset:0; background:radial-gradient(circle at 80% 20%, rgba(255,255,255,.18), transparent 45%);}
+  .final h2{font-size:clamp(28px,3.6vw,42px); font-weight:900; position:relative;}
+  .final p{font-size:18px; opacity:.95; margin-top:16px; position:relative; max-width:560px; margin-left:auto; margin-right:auto;}
+  .final .btn{position:relative; margin-top:30px; background:#fff; color:var(--primary-press); height:56px; font-size:17px;}
+  .final .btn:hover{background:#F0FDFA;}
+
+  /* Footer */
+  footer.ft{background:var(--ink); color:#CBD5E1; padding:56px 0 28px; margin-top:90px;}
+  .ft-grid{display:grid; grid-template-columns:1.6fr 1fr 1fr 1.2fr; gap:36px;}
+  .ft-grid h4{color:#fff; font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-bottom:16px;}
+  .ft-grid a{display:block; color:#94A3B8; font-size:14.5px; padding:5px 0; transition:color .15s;}
+  .ft-grid a:hover{color:#fff;}
+  .ft-brand .brand{color:#fff; margin-bottom:14px;}
+  .ft-brand p{font-size:14px; color:#94A3B8; max-width:300px;}
+  .ft-soc{display:flex; gap:10px; margin-top:18px;}
+  .ft-soc a{width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,.07); display:flex; align-items:center; justify-content:center; padding:0;}
+  .ft-soc svg{width:18px; height:18px;}
+  .ft-contact div{display:flex; align-items:center; gap:9px; font-size:14px; padding:5px 0; color:#94A3B8;}
+  .ft-contact svg{width:16px; height:16px; color:var(--primary-soft);}
+  .ft-bottom{border-top:1px solid rgba(255,255,255,.1); margin-top:40px; padding-top:22px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-size:13px; color:#64748B;}
+  .ft-bottom a{color:#94A3B8;}
+
+  /* Reveal animation */
+  .reveal{opacity:0; transform:translateY(26px); transition:opacity .6s var(--ease), transform .6s var(--ease);}
+  .reveal.in{opacity:1; transform:none;}
+  /* Reduced motion: never hide content — show everything immediately. */
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+  }
+
+  /* Responsive */
+  @media(max-width:980px){
+    .hero-grid{grid-template-columns:1fr; gap:36px;}
+    .hero-mock{transform:none;}
+    .feat-grid{grid-template-columns:repeat(2,1fr);}
+    .steps{grid-template-columns:repeat(2,1fr);}
+    .aud-grid{grid-template-columns:repeat(2,1fr);}
+    .price-grid{grid-template-columns:1fr; max-width:440px; margin:0 auto;}
+    .quotes{grid-template-columns:1fr;}
+    .ft-grid{grid-template-columns:1fr 1fr;}
+    .trust-grid{grid-template-columns:repeat(2,1fr); gap:30px;}
+  }
+  @media(max-width:680px){
+    .nav-links{display:none;}
+    .hamburger{display:flex;}
+    .nav-cta .btn-ghost{display:none;}
+    section{padding:60px 0;}
+    .zig,.zig.rev .zig-text{grid-template-columns:1fr; order:0;}
+    .zig{gap:26px; margin-bottom:60px;}
+    .zig.rev .zig-img{order:-1;}
+    .feat-grid{grid-template-columns:1fr;}
+    .gallery{grid-template-columns:1fr;}
+    .ft-grid{grid-template-columns:1fr;}
+    .final{padding:48px 24px;}
+    .hero{padding:48px 0 20px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER / NAV ============ -->
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="brand">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <defs><linearGradient id="g" x1="3" y1="6" x2="29" y2="26" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#2B7FD4"/><stop offset=".5" stop-color="#1FA6B0"/><stop offset="1" stop-color="#3AB87A"/></linearGradient></defs>
+        <path d="M11 6.6c1.4-1.9 4.6-2 6.1-.2 1.6-.7 3.7.1 4.4 1.8 2.1-.3 4 1.4 4 3.5 1.6.5 2.6 2.2 2.2 3.9 1.2 1 1.4 2.9.3 4.1.5 1.7-.7 3.5-2.5 3.7-.5 1.8-2.6 2.7-4.3 1.9-1.2 1.5-3.6 1.5-4.8 0-1.6.8-3.7-.1-4.3-1.8-1.9.2-3.6-1.3-3.5-3.2-1.6-.5-2.5-2.2-2-3.8-1.1-1.1-1.1-2.9 0-4-.5-1.7.6-3.5 2.4-3.8.2-1.9 2.1-3.2 3.9-2.8z" fill="url(#g)"/>
+        <g stroke="#fff" stroke-width="1.3" stroke-linecap="round"><line x1="12" y1="11.5" x2="17" y2="10"/><line x1="17" y1="10" x2="20.5" y2="13.5"/><line x1="12" y1="11.5" x2="14.5" y2="17"/><line x1="14.5" y1="17" x2="20.5" y2="13.5"/><line x1="14.5" y1="17" x2="18" y2="21"/></g>
+        <g fill="#fff"><circle cx="12" cy="11.5" r="1.7"/><circle cx="17" cy="10" r="1.7"/><circle cx="20.5" cy="13.5" r="1.7"/><circle cx="14.5" cy="17" r="1.7"/><circle cx="18" cy="21" r="1.7"/></g>
+      </svg>
+      Neyro<span style="color:var(--primary)">Cog</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Imkoniyatlar</a>
+      <a href="#how">Qanday ishlaydi</a>
+      <a href="#audience">Kimlar uchun</a>
+      <a href="#pricing">Tariflar</a>
+      <a href="#contact">Aloqa</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="index.html" class="btn btn-ghost btn-sm">Ro'yxatdan o'tish</a>
+      <a href="index.html" class="btn btn-primary btn-sm"><i data-lucide="log-in"></i> Kirish</a>
+      <button class="hamburger" id="burger" aria-label="Menyu"><i data-lucide="menu"></i></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#features">Imkoniyatlar</a>
+  <a href="#how">Qanday ishlaydi</a>
+  <a href="#audience">Kimlar uchun</a>
+  <a href="#pricing">Tariflar</a>
+  <a href="#contact">Aloqa</a>
+  <a href="index.html" class="btn btn-primary"><i data-lucide="log-in"></i> Kirish</a>
+</div>
+
+<span id="top"></span>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="reveal">
+      <span class="eyebrow"><i data-lucide="brain"></i> Pediatrik neyrokognitiv platforma</span>
+      <h1>Bolalarda operatsiyadan keyingi <span class="grad-text">kognitiv buzilishni</span> erta aniqlang</h1>
+      <p class="lede">NeyroCog — maktab yoshidagi bolalarda perioperativ neyrokognitiv buzilishni (PNB) standartlashtirilgan testlar orqali baholaydi, xavfni statistik model bilan bashorat qiladi va raqamli reabilitatsiyani boshqaradi — barchasi bitta tizimda.</p>
+      <div class="hero-cta">
+        <a href="index.html" class="btn btn-primary btn-lg"><i data-lucide="log-in"></i> Kirish</a>
+        <a href="#showcase" class="btn btn-ghost btn-lg"><i data-lucide="play-circle"></i> Demoni ko'rish</a>
+      </div>
+      <div class="hero-stats">
+        <div class="s"><b>7</b><span>KNBT diagnostik testi</span></div>
+        <div class="s"><b>3</b><span>baholash bosqichi</span></div>
+        <div class="s"><b>50</b><span>reabilitatsiya mashqi</span></div>
+        <div class="s"><b>0.78</b><span>o'rtacha AUC aniqlik</span></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="mock hero-mock">
+        <div class="mock-bar"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i><span class="u">neyrocog.uz/app</span></div>
+        <img src="screenshots/landing/dashboard.png" alt="NeyroCog bemorlar paneli — kohort statistikasi va xavf foizi">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST / METRICS ============ -->
+<div class="trust">
+  <div class="wrap trust-grid">
+    <div class="t reveal"><b>7</b><span>standartlashtirilgan test</span></div>
+    <div class="t reveal"><b>10</b><span>kognitiv domen</span></div>
+    <div class="t reveal"><b>n=181</b><span>tadqiqot namunasi</span></div>
+    <div class="t reveal"><b>100%</b><span>offline ishlaydi (PWA)</span></div>
+  </div>
+</div>
+
+<!-- ============ FEATURES (100% coverage) ============ -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kick">Imkoniyatlar</div>
+      <h2>Tizimning to'liq imkoniyatlari</h2>
+      <p>Diagnostikadan bashoratgacha, reabilitatsiyadan statistik tahlilgacha — NeyroCog perioperativ kognitiv kuzatuvning har bir bosqichini qamrab oladi.</p>
+    </div>
+    <div class="feat-grid">
+
+      <div class="cat-label reveal">Diagnostika</div>
+      <div class="feat reveal"><div class="ic" style="background:var(--primary-soft);color:var(--primary)"><i data-lucide="clipboard-list"></i></div>
+        <h3>7 ta KNBT testi</h3><p><b>KNBT</b> — Kompleks neyrokognitiv baholash tizimi: Stroop, TMT, Digit Span, Lurya so'z xotirasi, nevrologik baholash (12 shkala), audio gnozis va EEG — bitta batareyada.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:#FEF3C7;color:#D97706"><i data-lucide="layers"></i></div>
+        <h3>3 bosqichli kuzatuv</h3><p>Har bemor uchun PreOp (operatsiyagacha), PostOp (7–10 kun) va PostTx (davolashdan keyin) bosqichlarida solishtirma o'lchov.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:var(--accent-soft);color:var(--accent)"><i data-lucide="gauge"></i></div>
+        <h3>CogScore va ISPOCD</h3><p>Har test 0–100 ball, Z-ball va kognitiv salomatlik darajasiga aylantiriladi; composite ISPOCD verdikti avtomatik chiqadi.</p></div>
+
+      <div class="cat-label reveal">Bashorat va tahlil</div>
+      <div class="feat reveal"><div class="ic" style="background:#FCE7F3;color:#DB2777"><i data-lucide="trending-up"></i></div>
+        <h3>PNB xavf bashorati</h3><p>Logistik regressiya yosh, anesteziya davomiyligi, dori soni va premorbid fon asosida PNB ehtimolini (%) hisoblaydi.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:var(--primary-soft);color:var(--primary)"><i data-lucide="activity"></i></div>
+        <h3>ROC va diagnostik aniqlik</h3><p>Har instrument uchun ROC egri chizig'i, AUC + 95% CI, Youden cut-off, sezgirlik/xoslik va DeLong solishtiruvi.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:#DCFCE7;color:#16A34A"><i data-lucide="pill"></i></div>
+        <h3>Davolash samaradorligi</h3><p>Pantogam + kognitiv trening ta'sirini Cohen's d, tiklanish foizi va NNT ko'rsatkichlari bilan baholash.</p></div>
+
+      <div class="cat-label reveal">Reabilitatsiya</div>
+      <div class="feat reveal"><div class="ic" style="background:#F3E8FF;color:#7C3AED"><i data-lucide="brain-circuit"></i></div>
+        <h3>50 raqamli mashq</h3><p>10 kognitiv domen bo'yicha — diqqat, ishchi xotira, ijro funksiyalari, psixomotor tezlik va boshqalar.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:#FEF3C7;color:#D97706"><i data-lucide="sliders-horizontal"></i></div>
+        <h3>Adaptiv qiyinlik</h3><p>Mashq darajasi bolaning natijasiga qarab avtomatik moslashadi; kunlik maqsad va streak bilan motivatsiya.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:var(--accent-soft);color:var(--accent)"><i data-lucide="line-chart"></i></div>
+        <h3>Progress kuzatuvi</h3><p>Har seans balli, aniqligi va vaqti saqlanadi; domenlar bo'yicha rivojlanish vizual ko'rsatiladi.</p></div>
+
+      <div class="cat-label reveal">Platforma</div>
+      <div class="feat reveal"><div class="ic" style="background:#DCFCE7;color:#16A34A"><i data-lucide="users"></i></div>
+        <h3>Bemorlar bazasi</h3><p>Ro'yxatga olish, qidiruv, kohort KPI statistikasi va har qator uchun bashoratli xavf foizi.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:var(--primary-soft);color:var(--primary)"><i data-lucide="smartphone"></i></div>
+        <h3>Istalgan qurilmada</h3><p>To'liq moslashuvchan dizayn — telefon, planshet va kompyuterda; test ekranlari sensorli boshqaruvni qo'llaydi.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:#E0F2FE;color:#0284C7"><i data-lucide="wifi-off"></i></div>
+        <h3>Offline (PWA)</h3><p>Ilova qurilmaga o'rnatiladi va internetsiz ishlaydi — ma'lumotlar faqat brauzerda xavfsiz saqlanadi.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:#F1F5F9;color:#475569"><i data-lucide="file-down"></i></div>
+        <h3>Hisobot eksporti</h3><p>Kohort ma'lumotlari CSV (Excel) va har bemor uchun to'liq klinik PDF hisoboti.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:#1E293B;color:#fff"><i data-lucide="moon"></i></div>
+        <h3>Tungi rejim</h3><p>Yorug' va qorong'i mavzu — uzoq klinik smenalarda ko'zni charchatmaydi, tanlov saqlanadi.</p></div>
+      <div class="feat reveal"><div class="ic" style="background:#FEE2E2;color:#DC2626"><i data-lucide="shield-check"></i></div>
+        <h3>Maxfiy va xavfsiz</h3><p>Bemor ma'lumotlari serverga yuborilmaydi — barchasi qurilmaning o'zida lokal saqlanadi.</p></div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ ZIGZAG SHOWCASE (real screenshots) ============ -->
+<section style="background:var(--bg-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kick">Yaqindan</div>
+      <h2>Klinik jarayon — bir tizimda</h2>
+    </div>
+
+    <div class="zig reveal">
+      <div class="zig-text">
+        <div class="tag">Bemor kartasi</div>
+        <h3>Bitta ekranda to'liq klinik manzara</h3>
+        <p>Bemorning demografik ma'lumotlari, xavf omillari, har bosqichdagi test holati va PNB ehtimoli — hammasi yagona klinik kartada.</p>
+        <ul class="zig-list">
+          <li><i data-lucide="check-circle-2"></i> Diagnostika, ehtimol va reabilitatsiya bir joyda</li>
+          <li><i data-lucide="check-circle-2"></i> Har bosqich uchun test progressi (PreOp / PostOp / PostTx)</li>
+          <li><i data-lucide="check-circle-2"></i> ISPOCD musbat bo'lganda avtomatik belgi</li>
+        </ul>
+      </div>
+      <div class="zig-img mock"><div class="mock-bar"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i><span class="u">neyrocog.uz/app</span></div>
+        <img src="screenshots/landing/patient-card.png" alt="Bemor klinik kartasi"></div>
+    </div>
+
+    <div class="zig rev reveal">
+      <div class="zig-text">
+        <div class="tag">Diagnostik testlar</div>
+        <h3>Standartlashtirilgan KNBT batareyasi</h3>
+        <p>Interaktiv testlar bolaning o'zi tomonidan bajariladi, manual shkalalar shifokor tomonidan to'ldiriladi — har biri avtomatik ballanadi.</p>
+        <ul class="zig-list">
+          <li><i data-lucide="check-circle-2"></i> Stroop, TMT, DST, Audio — interaktiv</li>
+          <li><i data-lucide="check-circle-2"></i> LMWT, NS (12 shkala), EEG — klinik forma</li>
+          <li><i data-lucide="check-circle-2"></i> Yosh normasiga moslashtirilgan baholash</li>
+        </ul>
+      </div>
+      <div class="zig-img mock"><div class="mock-bar"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i><span class="u">neyrocog.uz/app</span></div>
+        <img src="screenshots/landing/tests.png" alt="Diagnostik testlar ro'yxati"></div>
+    </div>
+
+    <div class="zig reveal">
+      <div class="zig-text">
+        <div class="tag">PNB bashorati</div>
+        <h3>Xavfni testdan oldin biling</h3>
+        <p>Logistik va chiziqli regressiya modellari ro'yxatdagi 4 ta xavf omilidan PNB ehtimolini va kutilayotgan CogScore'ni hisoblaydi.</p>
+        <ul class="zig-list">
+          <li><i data-lucide="check-circle-2"></i> PNB ehtimoli (%) + kutilayotgan CogScore</li>
+          <li><i data-lucide="check-circle-2"></i> AUC, Pseudo-R² va omillar hissasi</li>
+          <li><i data-lucide="check-circle-2"></i> Avtomatik klinik tavsiyalar</li>
+        </ul>
+      </div>
+      <div class="zig-img mock"><div class="mock-bar"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i><span class="u">neyrocog.uz/app</span></div>
+        <img src="screenshots/landing/forecast.png" alt="PNB ehtimoli bashorat moduli"></div>
+    </div>
+
+    <div class="zig rev reveal">
+      <div class="zig-text">
+        <div class="tag">Statistik tahlil</div>
+        <h3>Tadqiqot darajasidagi analitika</h3>
+        <p>ROC/AUC, DeLong solishtiruvi, confusion matrix, davolash samaradorligi va kohort hisobotlari — eksport bilan.</p>
+        <ul class="zig-list">
+          <li><i data-lucide="check-circle-2"></i> ROC egri chizig'i + 95% CI + cut-off</li>
+          <li><i data-lucide="check-circle-2"></i> Cohen's d, ARR, NNT</li>
+          <li><i data-lucide="check-circle-2"></i> CSV va PDF eksport</li>
+        </ul>
+      </div>
+      <div class="zig-img mock"><div class="mock-bar"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i><span class="u">neyrocog.uz/app</span></div>
+        <img src="screenshots/landing/analytics.png" alt="ROC tahlili va statistik panel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kick">Qanday ishlaydi</div>
+      <h2>To'rt qadamda boshlang</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="n">1</div><h3>Ro'yxatdan o'ting</h3><p>Tizimga kiring va bemorni xavf omillari bilan ro'yxatga oling.</p></div>
+      <div class="step reveal"><div class="n">2</div><h3>Testlarni o'tkazing</h3><p>KNBT batareyasini kerakli bosqichda (PreOp/PostOp/PostTx) bajaring.</p></div>
+      <div class="step reveal"><div class="n">3</div><h3>Natijani ko'ring</h3><p>CogScore, ISPOCD verdikti va PNB ehtimoli avtomatik hisoblanadi.</p></div>
+      <div class="step reveal"><div class="n">4</div><h3>Reabilitatsiya qiling</h3><p>Mashqlar tayinlang, progress va davolash samaradorligini kuzating.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AUDIENCE ============ -->
+<section id="audience" style="background:var(--bg-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kick">Kimlar uchun</div>
+      <h2>Sizning ishingiz uchun yaratilgan</h2>
+    </div>
+    <div class="aud-grid">
+      <div class="aud reveal"><div class="ic"><i data-lucide="stethoscope"></i></div><h3>Anesteziolog va jarrohlar</h3><p>Operatsiyadan oldin yuqori xavfli bolalarni aniqlang va perioperativ taktikani moslang.</p></div>
+      <div class="aud reveal"><div class="ic"><i data-lucide="brain"></i></div><h3>Nevrolog va pediatrlar</h3><p>Kognitiv buzilishni standart o'lchovlar bilan tashxislang va dinamikani kuzating.</p></div>
+      <div class="aud reveal"><div class="ic"><i data-lucide="hospital"></i></div><h3>Klinika va shifoxonalar</h3><p>Yagona protokol, kohort statistikasi va hisobotlar bilan markazlashgan kuzatuv.</p></div>
+      <div class="aud reveal"><div class="ic"><i data-lucide="flask-conical"></i></div><h3>Tadqiqotchilar</h3><p>ROC, AUC, regressiya va effekt o'lchamlari bilan ilmiy tahlil va eksport.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRODUCT SHOWCASE ============ -->
+<section id="showcase">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kick">Mahsulot ichida</div>
+      <h2>Haqiqiy interfeys</h2>
+      <p>Quyidagilar — platformaning haqiqiy ekran tasvirlari. Har bir modul puxta o'ylangan va klinik ish jarayoniga moslangan.</p>
+    </div>
+    <div class="gallery">
+      <div class="g reveal"><img src="screenshots/landing/dashboard.png" alt="Bemorlar paneli"><div class="cap"><b>Bemorlar paneli</b><span>Kohort KPI, qidiruv va xavf foizi</span></div></div>
+      <div class="g reveal"><img src="screenshots/landing/rehab.png" alt="Reabilitatsiya markazi"><div class="cap"><b>Reabilitatsiya markazi</b><span>10 domen, 50 mashq, kunlik maqsad</span></div></div>
+      <div class="g reveal"><img src="screenshots/landing/forecast.png" alt="PNB bashorati"><div class="cap"><b>PNB bashorati</b><span>Logistik regressiya + kutilayotgan CogScore</span></div></div>
+      <div class="g reveal"><img src="screenshots/landing/analytics.png" alt="Statistik tahlil"><div class="cap"><b>Tahlil markazi</b><span>ROC, AUC va diagnostik aniqlik</span></div></div>
+    </div>
+    <div class="showcase-cta reveal">
+      <a href="index.html" class="btn btn-primary btn-lg">Platformani sinab ko'ring <i data-lucide="arrow-right"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section id="pricing" style="background:var(--bg-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kick">Tariflar</div>
+      <h2>Ehtiyojingizga mos reja</h2>
+      <p>Bitta shifokordan to butun klinikagacha — moslashuvchan tariflar.</p>
+    </div>
+    <div class="price-grid">
+      <div class="price reveal"><h3>Bepul</h3>
+        <div class="amt">0<small> so'm</small></div>
+        <p class="desc">Yakka shifokorlar va sinov uchun.</p>
+        <ul>
+          <li><i data-lucide="check"></i> 1 foydalanuvchi</li>
+          <li><i data-lucide="check"></i> Barcha 7 ta test</li>
+          <li><i data-lucide="check"></i> PNB bashorati</li>
+          <li><i data-lucide="check"></i> Lokal saqlash (offline)</li>
+        </ul>
+        <a href="index.html" class="btn btn-ghost">Boshlash</a>
+      </div>
+      <div class="price feat-plan reveal"><span class="pop">Eng ommabop</span><h3>Klinika</h3>
+        <div class="amt">Kelishuv<small></small></div>
+        <p class="desc">Bo'lim va shifoxonalar uchun.</p>
+        <ul>
+          <li><i data-lucide="check"></i> Ko'p foydalanuvchi va rollar</li>
+          <li><i data-lucide="check"></i> Kohort statistikasi va tahlil</li>
+          <li><i data-lucide="check"></i> CSV / PDF hisobotlar</li>
+          <li><i data-lucide="check"></i> Reabilitatsiya protokoli</li>
+          <li><i data-lucide="check"></i> Ustuvor qo'llab-quvvatlash</li>
+        </ul>
+        <a href="index.html" class="btn btn-primary">Bog'lanish</a>
+      </div>
+      <div class="price reveal"><h3>Tadqiqot</h3>
+        <div class="amt">Kelishuv<small></small></div>
+        <p class="desc">Ilmiy markaz va universitetlar uchun.</p>
+        <ul>
+          <li><i data-lucide="check"></i> To'liq statistik to'plam</li>
+          <li><i data-lucide="check"></i> Ma'lumot eksporti (datasets)</li>
+          <li><i data-lucide="check"></i> DeLong, ANOVA, regressiya</li>
+          <li><i data-lucide="check"></i> Maxsus integratsiya</li>
+        </ul>
+        <a href="index.html" class="btn btn-ghost">Bog'lanish</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kick">Mutaxassislar fikri</div>
+      <h2>Klinik amaliyotda</h2>
+    </div>
+    <div class="quotes">
+      <div class="quote reveal">
+        <div class="stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+        <p>"Operatsiyadan oldin yuqori xavfli bolalarni aniqlash endi soniyalar masalasi. Bashorat moduli kundalik ishimni sezilarli osonlashtirdi."</p>
+        <div class="who"><div class="av">DA</div><div><b>Dr. A. Karimova</b><span>Bolalar anesteziologi</span></div></div>
+      </div>
+      <div class="quote reveal">
+        <div class="stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+        <p>"KNBT batareyasi va Z-ball baholash standartlashtirilgan — natijalarni bosqichlar bo'yicha solishtirish juda qulay."</p>
+        <div class="who"><div class="av">SN</div><div><b>Dr. S. Nazarov</b><span>Bolalar nevrologi</span></div></div>
+      </div>
+      <div class="quote reveal">
+        <div class="stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+        <p>"ROC, AUC va DeLong tahlili to'g'ridan-to'g'ri ilovada — tadqiqot ma'lumotlarini eksport qilish ham oson."</p>
+        <div class="who"><div class="av">MR</div><div><b>Dr. M. Rahimova</b><span>Ilmiy tadqiqotchi</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" style="background:var(--bg-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kick">Savol-javob</div>
+      <h2>Ko'p beriladigan savollar</h2>
+    </div>
+    <div class="faq">
+      <div class="qa reveal"><button>Platforma kimlar uchun mo'ljallangan? <i data-lucide="chevron-down"></i></button><div class="a"><p>NeyroCog bolalar anesteziologlari, jarrohlar, nevrologlar va pediatrlar, shuningdek klinikalar va ilmiy tadqiqotchilar uchun. Bemor — bola, lekin tizim shifokor uchun ishlab chiqilgan; reabilitatsiya mashqlarini bola uyda telefon orqali bajaradi.</p></div></div>
+      <div class="qa reveal"><button>Ma'lumotlarim xavfsizmi? <i data-lucide="chevron-down"></i></button><div class="a"><p>Ha. Barcha bemor ma'lumotlari faqat sizning qurilmangiz brauzerida (lokal) saqlanadi va hech qanday serverga yuborilmaydi. Bu maxfiylikni to'liq ta'minlaydi.</p></div></div>
+      <div class="qa reveal"><button>Internetsiz ishlaydimi? <i data-lucide="chevron-down"></i></button><div class="a"><p>Ha. NeyroCog — Progressive Web App (PWA). Birinchi ochilgandan so'ng ilovani qurilmaga o'rnatib, internetsiz to'liq foydalanish mumkin.</p></div></div>
+      <div class="qa reveal"><button>Qanday boshlash mumkin? <i data-lucide="chevron-down"></i></button><div class="a"><p>"Kirish" tugmasini bosing, tizimga kiring va birinchi bemorni qo'shing. Testlar va bashorat avtomatik ishlaydi — qo'shimcha sozlash shart emas.</p></div></div>
+      <div class="qa reveal"><button>Bashorat test natijasimi? <i data-lucide="chevron-down"></i></button><div class="a"><p>Yo'q. PNB ehtimoli faqat ro'yxatga olishda kiritilgan xavf omillaridan (yosh, anesteziya davomiyligi, dori soni, premorbid fon) hisoblanadi — bemor hali test topshirmasa ham mavjud bo'ladi. Test natijalari alohida ko'rsatiladi.</p></div></div>
+      <div class="qa reveal"><button>Mobil qurilmada ishlatsa bo'ladimi? <i data-lucide="chevron-down"></i></button><div class="a"><p>Albatta. Interfeys to'liq moslashuvchan — telefon, planshet va kompyuterda bir xil ishlaydi. Test ekranlari sensorli boshqaruvni qo'llab-quvvatlaydi.</p></div></div>
+      <div class="qa reveal"><button>Natijalarni eksport qilsa bo'ladimi? <i data-lucide="chevron-down"></i></button><div class="a"><p>Ha. Kohort ma'lumotlarini CSV (Excel) formatida va har bemor uchun to'liq klinik PDF hisobotini chiqarish mumkin.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section>
+  <div class="wrap">
+    <div class="final reveal">
+      <h2>NeyroCog bilan bugun boshlang</h2>
+      <p>Bolalar kognitiv salomatligini erta aniqlash, bashorat qilish va reabilitatsiya qilishning to'liq tizimi — bir necha soniyada.</p>
+      <a href="index.html" class="btn"><i data-lucide="log-in"></i> Bepul ro'yxatdan o'tish</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="ft" id="contact">
+  <div class="wrap">
+    <div class="ft-grid">
+      <div class="ft-brand">
+        <div class="brand"><svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M11 6.6c1.4-1.9 4.6-2 6.1-.2 1.6-.7 3.7.1 4.4 1.8 2.1-.3 4 1.4 4 3.5 1.6.5 2.6 2.2 2.2 3.9 1.2 1 1.4 2.9.3 4.1.5 1.7-.7 3.5-2.5 3.7-.5 1.8-2.6 2.7-4.3 1.9-1.2 1.5-3.6 1.5-4.8 0-1.6.8-3.7-.1-4.3-1.8-1.9.2-3.6-1.3-3.5-3.2-1.6-.5-2.5-2.2-2-3.8-1.1-1.1-1.1-2.9 0-4-.5-1.7.6-3.5 2.4-3.8.2-1.9 2.1-3.2 3.9-2.8z" fill="url(#g)"/>
+          <g fill="#fff"><circle cx="12" cy="11.5" r="1.7"/><circle cx="17" cy="10" r="1.7"/><circle cx="20.5" cy="13.5" r="1.7"/><circle cx="14.5" cy="17" r="1.7"/><circle cx="18" cy="21" r="1.7"/></g></svg>
+          Neyro<span style="color:var(--primary-soft)">Cog</span></div>
+        <p>Bolalarda perioperativ neyrokognitiv buzilishni diagnostika, bashorat va reabilitatsiya qilish tizimi.</p>
+        <div class="ft-soc">
+          <a href="#" aria-label="Telegram"><i data-lucide="send"></i></a>
+          <a href="#" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+          <a href="#" aria-label="Facebook"><i data-lucide="facebook"></i></a>
+          <a href="#" aria-label="LinkedIn"><i data-lucide="linkedin"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4>Platforma</h4>
+        <a href="#features">Imkoniyatlar</a>
+        <a href="#how">Qanday ishlaydi</a>
+        <a href="#showcase">Mahsulot ichida</a>
+        <a href="#pricing">Tariflar</a>
+      </div>
+      <div>
+        <h4>Tizim</h4>
+        <a href="index.html">Kirish</a>
+        <a href="index.html">Ro'yxatdan o'tish</a>
+        <a href="#faq">Savol-javob</a>
+      </div>
+      <div class="ft-contact">
+        <h4>Aloqa</h4>
+        <div><i data-lucide="mail"></i> info@neyrocog.uz</div>
+        <div><i data-lucide="phone"></i> +998 90 123 45 67</div>
+        <div><i data-lucide="map-pin"></i> Toshkent, O'zbekiston</div>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <span>© 2026 NeyroCog. Barcha huquqlar himoyalangan.</span>
+      <span><a href="#">Maxfiylik siyosati</a> · <a href="#">Foydalanish shartlari</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Icons
+  if (window.lucide) lucide.createIcons();
+
+  // Sticky header background on scroll
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 12);
+  onScroll(); window.addEventListener('scroll', onScroll, { passive:true });
+
+  // Mobile menu
+  const burger = document.getElementById('burger');
+  const menu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => menu.classList.toggle('open'));
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
+
+  // FAQ accordion
+  document.querySelectorAll('.qa').forEach(qa => {
+    const btn = qa.querySelector('button');
+    const a = qa.querySelector('.a');
+    btn.addEventListener('click', () => {
+      const open = qa.classList.contains('open');
+      document.querySelectorAll('.qa').forEach(o => { o.classList.remove('open'); o.querySelector('.a').style.maxHeight = null; });
+      if (!open) { qa.classList.add('open'); a.style.maxHeight = a.scrollHeight + 'px'; }
+    });
+  });
+
+  // Reveal on scroll
+  const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealAll = () => document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+  if (prefersReduced || !('IntersectionObserver' in window)) {
+    // Reduced motion or no observer support → show all content immediately.
+    revealAll();
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach((el, i) => {
+      el.style.transitionDelay = (i % 3) * 60 + 'ms';
+      io.observe(el);
+    });
+    // Safety net: if anything is still hidden after load (observer never fired), reveal it.
+    window.addEventListener('load', () => setTimeout(revealAll, 1200));
+  }
+</script>
+</body>
+</html>

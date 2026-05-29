@@ -1,0 +1,25 @@
+{
+  "name": "NeyroCog — Kognitiv Test Tizimi",
+  "short_name": "NeyroCog",
+  "description": "Pediatrik perioperativ neyrokognitiv buzilishni (PNB) diagnostika, bashorat va reabilitatsiya tizimi.",
+  "lang": "uz",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "/clinical_app/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#F1F5F9",
+  "theme_color": "#0F766E",
+  "categories": ["medical", "health", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Bemorlar ro'yxati", "short_name": "Bemorlar", "url": "./index.html#/patients" },
+    { "name": "Tahlil — ROC", "short_name": "Tahlil", "url": "./index.html#/analytics/roc" }
+  ]
+}

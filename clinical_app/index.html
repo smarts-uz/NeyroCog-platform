@@ -2,8 +2,20 @@
 <html lang="uz">
 <head>
   <meta charset="utf-8">
-  <title>Kognitiv Test Tizimi</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NeyroCog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0F766E">
+  <meta name="application-name" content="NeyroCog">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="NeyroCog">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
   <link rel="stylesheet" href="app.css">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
@@ -27,9 +39,11 @@
   <script type="text/babel" src="tests/_TestShell.jsx"></script>
   <script type="text/babel" src="training/_TrainingShell.jsx"></script>
   <script src="training/_meta.js"></script>
+  <script src="training/adaptive.js"></script>
 
   <!-- Top-level screens -->
   <script type="text/babel" src="Login.jsx"></script>
+  <script type="text/babel" src="DoctorProfileModal.jsx"></script>
   <script type="text/babel" src="PatientsList.jsx"></script>
   <script type="text/babel" src="Composite.jsx"></script>
   <script type="text/babel" src="PNBForecast.jsx"></script>
@@ -50,6 +64,9 @@
   <script type="text/babel" src="tests/Audio.jsx"></script>
 
   <!-- Cognitive rehabilitation training -->
+  <script type="text/babel" src="training/engines_core.jsx"></script>
+  <script type="text/babel" src="training/engines_extra.jsx"></script>
+  <script type="text/babel" src="training/engines_unique.jsx"></script>
   <script type="text/babel" src="training/VisualSearch.jsx"></script>
   <script type="text/babel" src="training/NBack.jsx"></script>
   <script type="text/babel" src="training/TaskSwitch.jsx"></script>
@@ -60,15 +77,20 @@
   <script type="text/babel" src="Results.jsx"></script>
   <script type="text/babel" src="App.jsx"></script>
 
+  <!-- PWA registration (Serwist) -->
+  <script type="module" src="pwa.js"></script>
+
   <script type="text/babel">
     const REQUIRED = [
       "App", "Login", "PatientsList", "PatientView", "Composite", "Results",
-      "AppHeader", "Logo", "Icon",
+      "AppHeader", "Logo", "Icon", "EmptyState", "CountUp", "DoctorProfileModal",
       "TestShell", "TestIntro", "TestMetric",
       "TMTTest", "StroopTest", "DSTTest", "LMWTTest", "NSTest", "EEGTest", "AudioTest",
       "TrainingShell", "TrainingIntro", "TrainingDone",
       "RehabHub", "PNBForecast",
       "Analytics", "ROCModule", "TreatmentModule", "ReportsModule",
+      "EngSequence", "EngChoice", "EngMatch", "EngAudio", "EngBreathe",
+      "EngSort", "EngSimon", "EngGrid",
       "VisualSearchTraining", "NBackTraining", "TaskSwitchTraining", "RTimeTraining", "TrackingTraining",
     ];
     const mount = () => {

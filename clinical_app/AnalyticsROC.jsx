@@ -86,7 +86,7 @@ const ROCModule = ({ patients }) => {
       {!live && (
         <div style={{
           padding: "12px 16px", borderRadius: 10,
-          background: "var(--info-bg)", color: "#1E3A8A",
+          background: "var(--info-bg)", color: "var(--info)",
           display: "flex", alignItems: "center", gap: 10,
           fontFamily: "var(--font-sans)", fontSize: 13,
         }}>
@@ -383,10 +383,10 @@ const ConfusionMatrixPanel = ({ sens, spec, n, prevalence }) => {
         <div></div>
         <CellLabel>Test +</CellLabel>
         <CellLabel>Test −</CellLabel>
-        <CellLabel align="right">POCD +</CellLabel>
+        <CellLabel align="right">PNB +</CellLabel>
         <CMCell value={TP} label="TP" tone="ok" big />
         <CMCell value={FN} label="FN" tone="warn" />
-        <CellLabel align="right">POCD −</CellLabel>
+        <CellLabel align="right">PNB −</CellLabel>
         <CMCell value={FP} label="FP" tone="warn" />
         <CMCell value={TN} label="TN" tone="ok" big />
       </div>
@@ -402,7 +402,7 @@ const ConfusionMatrixPanel = ({ sens, spec, n, prevalence }) => {
         marginTop: 10, fontFamily: "var(--font-sans)", fontSize: 11,
         color: "var(--ink-3)", lineHeight: 1.5,
       }}>
-        n = {n}, taxminiy POCD prevalentligi: {Math.round(prevalence * 100)}%
+        n = {n}, taxminiy PNB prevalentligi: {Math.round(prevalence * 100)}%
       </div>
     </div>
   );

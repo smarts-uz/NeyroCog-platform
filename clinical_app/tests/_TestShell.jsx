@@ -1,7 +1,7 @@
 // Shared header + intro panel + bottom hint bar used by every test screen.
 // Each test renders its own body; this provides the chrome.
 
-const TestShell = ({ patient, test, phase, onAbort, intro, body, hint, metrics, doneMessage }) => {
+const TestShell = ({ patient, test, phase, onAbort, onSave, intro, body, hint, metrics, doneMessage }) => {
   return (
     <div style={{
       minHeight: "100vh", display: "flex", flexDirection: "column",
@@ -11,42 +11,75 @@ const TestShell = ({ patient, test, phase, onAbort, intro, body, hint, metrics, 
         height: 64, padding: "0 24px",
         background: "var(--surface)",
         borderBottom: "1px solid var(--border)",
-        display: "flex", alignItems: "center", gap: 16,
+        display: "flex", alignItems: "center", gap: 14, position: "relative",
       }}>
-        <div style={{
-          width: 36, height: 36, borderRadius: 10,
-          background: test.soft, color: test.color,
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}><Icon name={test.icon} size={18} /></div>
-        <div>
-          <div style={{
-            fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15,
-            color: "var(--ink)", letterSpacing: "-0.005em",
-          }}>{test.name}</div>
-          <div style={{
-            fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--ink-3)",
-          }}>{patient.fish} · № {patient.id} · {patient.yosh} yosh</div>
+        {/* Left: brand + breadcrumb (same as main pages) */}
+        <button onClick={onAbort} title="Chiqish" style={{
+          display: "flex", alignItems: "center", gap: 9, flexShrink: 0,
+          background: "transparent", border: 0, padding: 0, cursor: "pointer",
+        }}>
+          <Logo size={28} />
+          <div className="ktt-hide-mobile" style={{
+            fontFamily: "var(--font-sans)", fontWeight: 800, fontSize: 16,
+            color: "var(--ink)", letterSpacing: "-0.02em", whiteSpace: "nowrap",
+          }}>Neyro<span style={{ color: "var(--primary)" }}>Cog</span></div>
+        </button>
+        <div className="ktt-hide-mobile" style={{
+          display: "flex", alignItems: "center", gap: 7, minWidth: 0,
+          fontFamily: "var(--font-sans)", fontSize: 13.5, color: "var(--ink-3)",
+          paddingLeft: 8, borderLeft: "1px solid var(--divider)",
+        }}>
+          {[
+            { label: "Asosiy", onClick: onAbort },
+            { label: patient.fish, onClick: onAbort },
+            { label: "Diagnostika" },
+          ].map((b, i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <span style={{ color: "var(--ink-4)", flexShrink: 0 }}>/</span>}
+              {b.onClick
+                ? <button onClick={b.onClick} style={{
+                    background: "transparent", border: 0, padding: 0, cursor: "pointer",
+                    font: "inherit", color: "var(--ink-3)", whiteSpace: "nowrap", flexShrink: 0,
+                  }}>{b.label}</button>
+                : <span style={{ color: "var(--ink)", fontWeight: 600, whiteSpace: "nowrap" }}>{b.label}</span>}
+            </React.Fragment>
+          ))}
         </div>
 
-        <div style={{ flex: 1 }} />
-
-        {metrics && (
-          <div style={{ display: "flex", gap: 8 }}>
-            {metrics.map((m, i) => <TestMetric key={i} {...m} />)}
-          </div>
-        )}
-
-        <button className="btn btn-secondary btn-sm" onClick={onAbort}>
-          <Icon name="x" size={14} /> Chiqish
-        </button>
+        {/* Right: metrics + exit */}
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          {metrics && (
+            <div className="ktt-hide-mobile" style={{ display: "flex", gap: 8, marginRight: 20, paddingRight: 20, borderRight: "1px solid var(--border)" }}>
+              {metrics.map((m, i) => <TestMetric key={i} {...m} />)}
+            </div>
+          )}
+          {onSave && phase === "running"
+            ? <ExitSaveControls onSave={onSave} onAbort={onAbort} />
+            : <button className="btn btn-secondary btn-sm" onClick={onAbort}>
+                <Icon name="x" size={14} /> Chiqish
+              </button>}
+        </div>
       </header>
 
-      <div style={{
-        flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 24, overflow: "auto",
-      }}>
-        {phase === "intro" ? intro : (phase === "done" ? doneMessage : body)}
-      </div>
+      {phase === "intro" ? (
+        <div style={{
+          flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 24, overflow: "auto",
+        }}>{intro}</div>
+      ) : phase === "done" ? (
+        <div style={{
+          flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 24, overflow: "auto",
+        }}>{doneMessage}</div>
+      ) : (
+        <div className="ktt-run-layout" style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+          <GuidePanel intro={intro} test={test} />
+          <div className="ktt-run-body" style={{
+            flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+            padding: 24, minWidth: 0,
+          }}>{body}</div>
+        </div>
+      )}
 
       {hint && phase === "running" && (
         <div style={{
@@ -57,6 +90,7 @@ const TestShell = ({ patient, test, phase, onAbort, intro, body, hint, metrics, 
           fontFamily: "var(--font-sans)", fontSize: 14, color: "var(--ink-2)",
         }}>{hint}</div>
       )}
+      <Footer />
     </div>
   );
 };
@@ -165,3 +199,51 @@ const TestIntro = ({ test, title, description, steps, note, onStart, ctaLabel = 
 window.TestShell = TestShell;
 window.TestMetric = TestMetric;
 window.TestIntro = TestIntro;
+
+// Persistent instruction panel shown during the running phase.
+// Reads title/description/steps/note straight from the intro element's props,
+// so no per-test wiring is needed.
+const GuidePanel = ({ intro, test }) => {
+  const p = (intro && intro.props) || {};
+  const title = p.title || (test && test.name) || "Yo'riqnoma";
+  const steps = p.steps || p.instructions || [];
+  const desc = p.description;
+  const note = p.note;
+  if (!steps.length && !desc) return null;
+  return (
+    <aside className="ktt-guide" style={{
+      width: 290, flexShrink: 0, borderRight: "1px solid var(--border)",
+      background: "var(--surface-2)", padding: 20, overflow: "auto",
+    }}>
+      <div className="eyebrow" style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+        <Icon name="info" size={13} /> Yo'riqnoma
+      </div>
+      <div style={{ fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15, color: "var(--ink)", letterSpacing: "-0.01em", marginBottom: 8 }}>{title}</div>
+      {desc && <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, lineHeight: 1.5, color: "var(--ink-2)", margin: "0 0 12px" }}>{desc}</p>}
+      {steps.length > 0 && (
+        <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+          {steps.map((s, i) => (
+            <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 9 }}>
+              <span style={{
+                flexShrink: 0, width: 20, height: 20, borderRadius: 999,
+                background: "var(--primary-soft)", color: "var(--primary-press)",
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 11, marginTop: 1,
+              }}>{i + 1}</span>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 12.5, lineHeight: 1.45, color: "var(--ink-2)" }}>{s}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+      {note && (
+        <div style={{
+          marginTop: 12, padding: "9px 11px", borderRadius: 9,
+          background: "var(--warn-bg)", color: "#92400E",
+          fontFamily: "var(--font-sans)", fontSize: 12, lineHeight: 1.45,
+          display: "flex", gap: 7,
+        }}><Icon name="info" size={13} style={{ flexShrink: 0, marginTop: 1 }} /> {note}</div>
+      )}
+    </aside>
+  );
+};
+window.GuidePanel = GuidePanel;

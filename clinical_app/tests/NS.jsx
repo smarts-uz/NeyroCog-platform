@@ -1,11 +1,11 @@
 // NS — Neurological scoring (12 standardized scales)
-// "Ilmiy Izoh va Adabiyotlar" Excel'dan olingan POCD-asoslangan referens qiymatlar.
+// "Ilmiy Izoh va Adabiyotlar" Excel'dan olingan PNB-asoslangan referens qiymatlar.
 //
 // Har bir shkala uchun:
 //   • Code (MS, RF, KO, …) + abbreviation
 //   • 0..max oraliqdagi har bir qiymat — KLINIK MA'NOSI bilan
 //   • Yosh bo'yicha sog'lom norma (norm function)
-//   • POCD ta'sir koeffitsienti (K_i)
+//   • PNB ta'sir koeffitsienti (K_i)
 //   • Ilmiy manba
 //
 // Shifokor har bir qiymatni tanlashda nima ko'rsatishini aniq bilishi uchun
@@ -124,7 +124,7 @@ const NS_SCALES = [
   },
   {
     key: "fda", code: "NQ", name: "So'zlash / Nutq", abbr: "FDA", max: 10, impact: 0.55, sensitive: true,
-    description: "Frenchay Dysarthria + Boston/WAB. ★ ENG SEZGIR ko'rsatkich (POCD ta'siri 55%).",
+    description: "Frenchay Dysarthria + Boston/WAB. ★ ENG SEZGIR ko'rsatkich (PNB ta'siri 55%).",
     levels: [
       { v: 0, label: "Mutizm / Afaziya",   short: "Mutizm",    desc: "Nutq yo'q yoki butunlay tushunarsiz." },
       { v: 2, label: "Og'ir dizartriya",   short: "Og'ir",     desc: "Faqat 1–2 so'z, ifoda buzilgan." },
@@ -138,7 +138,7 @@ const NS_SCALES = [
   },
   {
     key: "psqi", code: "UY", name: "Uyqu sifati", abbr: "PSQI", max: 10, impact: 0.48, sensitive: true,
-    description: "PSQI/SDSC pediatrik. ★ Dastlabki POCD markeri — REM va delta to'lqin buzilishi.",
+    description: "PSQI/SDSC pediatrik. ★ Dastlabki PNB markeri — REM va delta to'lqin buzilishi.",
     levels: [
       { v: 0, label: "Og'ir insomniya",     short: "Insomniya", desc: "Uyqu fragmentlangan, har kechasi <4 soat samarali uyqu." },
       { v: 2, label: "Buzilish",            short: "Buzilish",  desc: "Tez-tez uyg'onish, ertalab charchoq, kunduzgi uyqu." },
@@ -152,7 +152,7 @@ const NS_SCALES = [
   },
   {
     key: "cn", code: "BN", name: "Bosh miya nerv belgilari", abbr: "I–XII", max: 12, impact: 0.38,
-    description: "Har 12 ta kranial nerv 1 ball: ishlasa 1, buzilsa 0. I (hid), VIII (eshitish), VII (yuz) — POCD da ko'p ta'sirlanadi.",
+    description: "Har 12 ta kranial nerv 1 ball: ishlasa 1, buzilsa 0. I (hid), VIII (eshitish), VII (yuz) — PNB da ko'p ta'sirlanadi.",
     levels: [
       { v: 0, label: "Hammasi buzilgan",    short: "0/12",      desc: "Hech bir nerv to'liq ishlamaydi. Og'ir miya shikastlanishi." },
       { v: 3, label: "Ko'p buzilish",       short: "3/12",      desc: "9 ta nerv buzilgan." },
@@ -167,7 +167,7 @@ const NS_SCALES = [
   },
   {
     key: "asa", code: "SF", name: "Umumiy somatik fon", abbr: "ASA", max: 10, impact: 0.32,
-    description: "ASA Physical Status + CIRS. Komorbidlik POCD xavfini 2–3× oshiradi.",
+    description: "ASA Physical Status + CIRS. Komorbidlik PNB xavfini 2–3× oshiradi.",
     levels: [
       { v: 0, label: "ASA V (moribund)",   short: "ASA V",    desc: "Hayotga tahdid, 24 soat ichida o'lim xavfi." },
       { v: 2, label: "ASA IV (og'ir)",     short: "ASA IV",   desc: "Doimiy hayotga tahdid soluvchi tizimli kasallik." },
@@ -181,9 +181,9 @@ const NS_SCALES = [
   },
 ];
 
-// Compute approximate POCD level from observed value vs age-norm
-// Formula (Excel): observed = norm × (1 − POCD/100 × K_i)
-// Reversed:        POCD = (1 − observed/norm) / K_i × 100
+// Compute approximate PNB level from observed value vs age-norm
+// Formula (Excel): observed = norm × (1 − PNB/100 × K_i)
+// Reversed:        PNB = (1 − observed/norm) / K_i × 100
 function estimatePOCD(scale, value, age) {
   if (value == null) return null;
   const norm = scale.norm(age);
@@ -215,7 +215,7 @@ const NSTest = ({ patient, onAbort, onFinish }) => {
 
   const set = (k, v) => setVals(f => ({ ...f, [k]: +v }));
 
-  // Aggregate POCD estimate across all scales (weighted by impact)
+  // Aggregate PNB estimate across all scales (weighted by impact)
   const aggregatePOCD = React.useMemo(() => {
     let weighted = 0, totalW = 0;
     NS_SCALES.forEach(s => {
@@ -246,7 +246,7 @@ const NSTest = ({ patient, onAbort, onFinish }) => {
   return (
     <TestShell
       patient={patient} test={test} phase={phase === "intro" ? "intro" : "running"}
-      onAbort={onAbort}
+      onAbort={onAbort} onSave={() => submit()}
       intro={
         <TestIntro test={test}
           title="Nevrologik holatni baholash (NS)"
@@ -255,7 +255,7 @@ const NSTest = ({ patient, onAbort, onFinish }) => {
             "Har bir shkala uchun bemor holatiga mos qiymatni tanlang.",
             "Tanlash uchun: shkala tugmalarini bosing yoki surgichdan foydalaning.",
             "Bemor yoshi uchun sog'lom norma har shkalada ko'rsatilgan.",
-            "Tahminiy POCD darajasi har bir shkala yonida real vaqtda hisoblanadi.",
+            "Tahminiy PNB darajasi har bir shkala yonida real vaqtda hisoblanadi.",
           ]}
           onStart={() => setPhase("entry")}
           ctaLabel="Baholashni boshlash"
@@ -302,7 +302,7 @@ const NSTest = ({ patient, onAbort, onFinish }) => {
               border: "1px solid currentColor",
             }}>
               <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.85 }}>
-                Tahminiy POCD
+                Tahminiy PNB
               </span>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
                 {aggregatePOCD == null ? "—" : aggregatePOCD.toFixed(0)}
@@ -380,7 +380,7 @@ const ScaleCard = ({ scale, value, onChange, age, expanded, onToggleExpand }) =>
           }}>
             {scale.name}
             {scale.sensitive && (
-              <span title="Sezgir ko'rsatkich — POCD ta'siri kuchli" style={{
+              <span title="Sezgir ko'rsatkich — PNB ta'siri kuchli" style={{
                 fontFamily: "var(--font-mono)", fontSize: 9,
                 color: "#92400E", background: "#FEF3C7",
                 padding: "1px 5px", borderRadius: 4, fontWeight: 700,
@@ -390,7 +390,7 @@ const ScaleCard = ({ scale, value, onChange, age, expanded, onToggleExpand }) =>
           </div>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--ink-3)", marginTop: 2 }}>
             {scale.abbr} · 0–{scale.max} · {age}y norma: <b style={{ color: "var(--ink-2)" }}>{norm.toFixed(1)}</b>
-            {" · "}POCD ta'sir: <b style={{ color: "var(--ink-2)" }}>{Math.round(scale.impact * 100)}%</b>
+            {" · "}PNB ta'sir: <b style={{ color: "var(--ink-2)" }}>{Math.round(scale.impact * 100)}%</b>
           </div>
         </div>
         <button type="button" onClick={onToggleExpand}
@@ -436,7 +436,7 @@ const ScaleCard = ({ scale, value, onChange, age, expanded, onToggleExpand }) =>
         })}
       </div>
 
-      {/* Selected level detail + POCD estimate */}
+      {/* Selected level detail + PNB estimate */}
       <div style={{
         padding: "10px 16px",
         display: "flex", alignItems: "center", gap: 12,
@@ -463,7 +463,7 @@ const ScaleCard = ({ scale, value, onChange, age, expanded, onToggleExpand }) =>
           display: "flex", flexDirection: "column", alignItems: "center",
           minWidth: 70,
         }}>
-          <span style={{ fontSize: 8, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.7 }}>POCD</span>
+          <span style={{ fontSize: 8, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.7 }}>PNB</span>
           <span>{pocd == null ? "—" : pocd.toFixed(0)}</span>
           <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 600 }}>{sev.label}</span>
         </div>

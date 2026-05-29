@@ -92,6 +92,9 @@
   function stroopCogScore(raw, patient) {
     if (!raw || raw.correct == null) return null;
     const n = raw.totalTrials || 40;
+    // Nothing attempted (e.g. saved immediately) → 0, not an inflated speed score.
+    const attempted = (raw.correct || 0) + (raw.errors || 0) + (raw.skipped || 0);
+    if (attempted === 0) return 0;
     const accuracy = raw.correct / n;
     const skipPct  = (raw.skipped || 0) / n;
     const avgRT    = raw.totalTimeSec / n;
@@ -103,19 +106,28 @@
   }
 
   // ----- TMT -----
-  // raw = { aTime, aErrors, bTime, bErrors }
+  // raw = { aTime, aErrors, bTime, bErrors, completed, total }
   // Lower time = better. Reference: A ≈ 30s, B ≈ 75s.
+  // NOTE: our interactive form runs Part A only — when bTime is null the score is
+  // based purely on Part A (no free credit). Incomplete trails (saved early) are
+  // scaled by the completion ratio so abandoning the test cannot yield a high score.
   function tmtCogScore(raw, patient) {
     if (!raw || raw.aTime == null) return null;
     const aRef = 30, bRef = 75;
     const aPct = Math.max(0, Math.min(1, (aRef * 2 - raw.aTime) / aRef));
-    let bPct = 1;
-    if (raw.bTime != null) {
-      bPct = Math.max(0, Math.min(1, (bRef * 2 - raw.bTime) / bRef));
-    }
     const errPenalty = Math.min(0.3, ((raw.aErrors || 0) + (raw.bErrors || 0)) * 0.03);
-    const base = (aPct * 0.4 + bPct * 0.6) * 100 - errPenalty * 100;
-    return ageAdjust(round1(Math.max(0, base)), patient?.yosh);
+    let base;
+    if (raw.bTime != null) {
+      const bPct = Math.max(0, Math.min(1, (bRef * 2 - raw.bTime) / bRef));
+      base = (aPct * 0.4 + bPct * 0.6) * 100 - errPenalty * 100;
+    } else {
+      base = aPct * 100 - errPenalty * 100;
+    }
+    // Completion ratio: a trail saved before all nodes are connected is penalised.
+    const ratio = (raw.completed != null && raw.total)
+      ? Math.max(0, Math.min(1, raw.completed / raw.total))
+      : 1;
+    return ageAdjust(round1(Math.max(0, base) * ratio), patient?.yosh);
   }
 
   // ----- DST -----
@@ -181,6 +193,9 @@
   function audioCogScore(raw, patient) {
     if (!raw || raw.correct == null) return null;
     const n = raw.totalTrials || 30;
+    // Nothing attempted → 0, not an inflated speed score.
+    const attempted = (raw.correct || 0) + (raw.errors || 0);
+    if (attempted === 0) return 0;
     const accuracy = raw.correct / n;
     const avgRT = raw.totalTimeSec / n;
     const speed = Math.max(0, Math.min(1, (8 - avgRT) / 7));

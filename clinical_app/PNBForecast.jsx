@@ -1,4 +1,4 @@
-// PNB Bashorat moduli — bemor sahifasidagi alohida tab.
+// PNB Ehtimoli moduli — bemor sahifasidagi alohida tab.
 // Bemor kiritilgan zahoti uning PNB xavfi va kutilayotgan og'irligi
 // avtomatik hisoblanadi.
 
@@ -23,12 +23,8 @@ const PNBForecast = ({ patient }) => {
           }}><Icon name="activity" size={20} /></div>
           <div style={{ flex: 1 }}>
             <div style={{
-              fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600,
-              letterSpacing: "0.12em", textTransform: "uppercase", opacity: 0.85,
-            }}>PNB rivojlanish prognozi · {patient.fish}</div>
-            <div style={{
               fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 20,
-              letterSpacing: "-0.01em", marginTop: 2,
+              letterSpacing: "-0.01em",
             }}>{comp.category.label}</div>
           </div>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, opacity: 0.85 }}>
@@ -96,7 +92,7 @@ const PNBForecast = ({ patient }) => {
           display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 18,
         }}>
           <InputTile label="Davomiyligi" value={`${F.input.dur} daq`} refValue={`o'rtacha: 90 daq`} icon="clock" />
-          <InputTile label="Preparatlar" value={`${F.input.drugs} ta`} refValue={`o'rtacha: 3 ta`} icon="pill" />
+          <InputTile label="Dori" value={`${F.input.drugs} ta`} refValue={`o'rtacha: 3 ta`} icon="pill" />
           <InputTile label="Bemor yoshi" value={`${F.input.age} y`} refValue={`o'rtacha: 11 y`} icon="user" />
           <InputTile label="Premorbid fon" value={F.input.prem ? "Mavjud" : "Yo'q"} refValue={`o'rtacha: Yo'q`} icon="alert-circle" />
         </div>
@@ -110,12 +106,16 @@ const PNBForecast = ({ patient }) => {
 
       {/* Per-instrument forecast */}
       <div className="card" style={{ padding: 20 }}>
-        <div className="eyebrow" style={{ marginBottom: 14 }}>
-          Test bo'yicha bashorat — har bir KNBT instrumenti
+        <div className="eyebrow" style={{ marginBottom: 4 }}>
+          Test bo'yicha ehtimoli — har bir KNBT instrumenti
         </div>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: "var(--ink-3)", margin: "0 0 14px", lineHeight: 1.5 }}>
+          Bu qiymatlar bemor xavf omillaridan (yosh, davomiyligi, dori, premorbid) hisoblangan <b>ehtimoliy baho</b> — test natijalari emas. Test topshirilgani alohida belgilanadi.
+        </p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
           {Object.entries(F.perInstrument).map(([id, data]) => (
-            <InstrumentForecast key={id} id={id} data={data} />
+            <InstrumentForecast key={id} id={id} data={data}
+              done={!!(patient.results && patient.results[id] && (patient.results[id].PreOp || patient.results[id].PostOp || patient.results[id].PostTx || patient.results[id].raw))} />
           ))}
         </div>
       </div>
@@ -143,7 +143,7 @@ const PNBForecast = ({ patient }) => {
           Model statistik manba: <b>Statistics M-3 Risk Factors</b> (n=181, pos∪Sog'lom).
           Logistic Regression koeffitsientlari (β₀, β_dur, β_drugs, β_age, β_prem) Excel datasetidan olingan.
           AUC = ROC egri ostidagi maydon (diagnostik aniqlik).
-          Bashorat <b>klinik qaror almashtirmaydi</b> — har holatda shifokor mustaqil baholash o'tkazishi kerak.
+          Ehtimoliy baho <b>klinik qaror almashtirmaydi</b> — har holatda shifokor mustaqil baholash o'tkazishi kerak.
         </div>
       </div>
     </div>
@@ -303,7 +303,7 @@ const ContributionRow = ({ contrib, maxContrib }) => {
   );
 };
 
-const InstrumentForecast = ({ id, data }) => {
+const InstrumentForecast = ({ id, data, done }) => {
   const meta = window.KNBT?.TEST_META?.[id] || { name: id, short: id, color: "#64748B", soft: "#F1F5F9", icon: "circle" };
   return (
     <div style={{
@@ -321,8 +321,11 @@ const InstrumentForecast = ({ id, data }) => {
         display: "flex", alignItems: "center", justifyContent: "center",
       }}><Icon name={meta.icon} size={15} /></div>
       <div>
-        <div style={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 13, color: "var(--ink)" }}>
+        <div style={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 13, color: "var(--ink)", display: "flex", alignItems: "center", gap: 6 }}>
           {meta.name}
+          {done
+            ? <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 9, letterSpacing: "0.04em", textTransform: "uppercase", color: "#166534", background: "var(--ok-bg)", padding: "1px 6px", borderRadius: 5 }}>✓ topshirilgan</span>
+            : <span style={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 9, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-4)", background: "var(--surface-3)", padding: "1px 6px", borderRadius: 5 }}>ehtimol</span>}
         </div>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--ink-3)" }}>
           AUC {data.risk.auc.toFixed(2)} · {meta.short}

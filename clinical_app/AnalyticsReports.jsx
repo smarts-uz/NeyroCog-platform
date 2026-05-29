@@ -5,7 +5,7 @@ const ReportsModule = ({ patients, onOpenPatient }) => {
   const downloadCSV = () => {
     const headers = [
       "ID", "F.I.Sh.", "Yoshi", "Jinsi", "Tug'ilgan sana",
-      "Premorbid fon", "Davomiyligi (daq)", "Preparatlar soni",
+      "Premorbid fon", "Davomiyligi (daq)", "Dori soni",
       "Amaliyot boshlanish", "Amaliyot tugash",
       "Testlar bajarilgan", "Reabilitatsiya seanslari",
       "PNB xavfi (%)", "Kutilgan CogScore",
@@ -29,7 +29,7 @@ const ReportsModule = ({ patients, onOpenPatient }) => {
         } catch (e) { return ""; }
       };
       return [
-        p.id, p.fish, p.yosh, p.jinsi || "", p.tugilgan || "",
+        p.id, p.fish, p.yosh, (window.jinsLabel ? window.jinsLabel(p.jinsi) : p.jinsi) || "", p.tugilgan || "",
         Number(p.premorbid) === 1 ? "Mavjud" : "Yo'q",
         p.davom, p.prep,
         p.boshlanish || "", p.tugash || "",
@@ -69,30 +69,41 @@ const ReportsModule = ({ patients, onOpenPatient }) => {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-      {/* Bulk exports */}
-      <div className="card" style={{ padding: 24 }}>
-        <div className="eyebrow" style={{ marginBottom: 14 }}>Kohort eksport</div>
-        <div data-grid="3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-          <ExportCard
-            icon="file-spreadsheet" color="#16A34A" soft="#DCFCE7"
-            title="CSV (Excel)" desc="Barcha bemorlar — demografik + KNBT natijalari + prognoz."
-            cta={`${patients.length} bemor`}
-            onClick={downloadCSV}
-          />
-          <ExportCard
-            icon="file-text" color="#2563EB" soft="#DBEAFE"
-            title="SPSS uchun" desc="Statistik tahlil uchun keng formatdagi CSV."
-            cta="Tez kunda"
-            disabled
-          />
-          <ExportCard
-            icon="bar-chart-3" color="#9333EA" soft="#F3E8FF"
-            title="Tadqiqot xulosasi" desc="ROC + Davolash effekti + Dashboard — bir PDF da."
-            cta="Tez kunda"
-            disabled
-          />
-        </div>
-      </div>
+      {/* Demografik taqsimot + eksport — bitta qatorda */}
+      {(() => {
+        const ageGroups = { "≤9": 0, "10-12": 0, "13-15": 0, "16+": 0 };
+        const sexCounts = { Erkak: 0, Ayol: 0 };
+        patients.forEach(p => {
+          const a = p.yosh || 0;
+          if (a <= 9) ageGroups["≤9"]++; else if (a <= 12) ageGroups["10-12"]++;
+          else if (a <= 15) ageGroups["13-15"]++; else ageGroups["16+"]++;
+          if (p.jinsi) sexCounts[p.jinsi] = (sexCounts[p.jinsi] || 0) + 1;
+        });
+        const D = window.AnalyticsDonut;
+        return (
+          <div data-grid="3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, alignItems: "stretch" }}>
+            <div className="card" style={{ padding: 20 }}>
+              <div className="eyebrow" style={{ marginBottom: 16 }}>Yosh taqsimoti</div>
+              {D && <D data={Object.entries(ageGroups).map(([k, v], i) => ({ label: k, value: v, color: ["#0F766E","#14857A","#2DA8A0","#7DD3C8"][i] }))} centerLabel="bemor" />}
+            </div>
+            <div className="card" style={{ padding: 20 }}>
+              <div className="eyebrow" style={{ marginBottom: 16 }}>Jins taqsimoti</div>
+              {D && <D data={Object.entries(sexCounts).map(([k, v]) => ({ label: window.jinsLabel ? window.jinsLabel(k) : k, value: v, color: k === "Erkak" ? "#2563EB" : "#DB2777" }))} centerLabel="bemor" />}
+            </div>
+            <div className="card" style={{ padding: 20, display: "flex", flexDirection: "column" }}>
+              <div className="eyebrow" style={{ marginBottom: 16 }}>Kohort eksport</div>
+              <div style={{ flex: 1 }}>
+                <ExportCard
+                  icon="file-spreadsheet" color="#16A34A" soft="#DCFCE7"
+                  title="CSV (Excel)" desc="Barcha bemorlar — demografik + KNBT natijalari + ehtimol."
+                  cta={`${patients.length} bemor`}
+                  onClick={downloadCSV}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Per-patient reports */}
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
@@ -101,7 +112,7 @@ const ReportsModule = ({ patients, onOpenPatient }) => {
           <p style={{
             fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--ink-3)",
             margin: "4px 0 0",
-          }}>Har bemor uchun alohida PDF hisobot. Demografik + barcha testlar + Z-scores + prognoz + reabilitatsiya tarixi.</p>
+          }}>Har bemor uchun alohida PDF hisobot. Demografik + barcha testlar + Z-scores + ehtimol + reabilitatsiya tarixi.</p>
         </div>
         <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
@@ -129,7 +140,7 @@ const ReportsModule = ({ patients, onOpenPatient }) => {
                   onMouseEnter={e => e.currentTarget.style.background = "var(--surface-2)"}
                   onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                   <ATd mono>{p.id}</ATd>
-                  <ATd><b>{p.fish}</b><br/><span style={{ fontSize: 11, color: "var(--ink-3)" }}>{p.yosh} y · {p.jinsi || "—"}</span></ATd>
+                  <ATd><b>{p.fish}</b><br/><span style={{ fontSize: 11, color: "var(--ink-3)" }}>{p.yosh} y · {window.jinsLabel ? window.jinsLabel(p.jinsi) : (p.jinsi || "—")}</span></ATd>
                   <ATd align="right" mono>{Object.keys(p.results || {}).length}</ATd>
                   <ATd align="right" mono>{(p.training || []).length}</ATd>
                   <ATd align="right" mono>
@@ -197,6 +208,7 @@ const ExportCard = ({ icon, color, soft, title, desc, cta, onClick, disabled }) 
 );
 
 // Generate a complete printable HTML report for a patient.
+window.buildPatientReport = buildPatientReport;
 function buildPatientReport(p) {
   const r = p.results || {};
   const training = p.training || [];
@@ -222,50 +234,90 @@ function buildPatientReport(p) {
 <meta charset="utf-8">
 <title>Klinik hisobot — ${p.fish}</title>
 <style>
-  @page { size: A4; margin: 16mm; }
-  body { font-family: -apple-system, "Segoe UI", sans-serif; color: #0F172A; line-height: 1.5; }
-  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
-  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: #0F766E; margin: 24px 0 8px; }
+  @page { size: A4; margin: 14mm 16mm 20mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Outfit", -apple-system, "Segoe UI", sans-serif; color: #1F2328; line-height: 1.5; margin: 0; }
+  h1 { font-size: 21px; margin: 0 0 3px; letter-spacing: -0.02em; font-weight: 800; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #0F766E; margin: 22px 0 8px; font-weight: 700; }
   h3 { font-size: 13px; margin: 12px 0 4px; }
-  .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #0F766E; padding-bottom: 12px; margin-bottom: 16px; }
-  .meta { color: #64748B; font-size: 12px; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Branded letterhead band */
+  .letterhead {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px; border-radius: 10px;
+    background: linear-gradient(135deg, #0F766E 0%, #14857A 60%, #1FA6B0 100%);
+    color: #FFF; margin-bottom: 18px;
+  }
+  .letterhead .lh-logo { width: 40px; height: 40px; flex-shrink: 0; }
+  .letterhead .lh-name { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+  .letterhead .lh-sub { font-size: 11px; opacity: 0.85; letter-spacing: 0.04em; }
+  .letterhead .lh-right { margin-left: auto; text-align: right; font-size: 11px; opacity: 0.92; }
+
+  .patient-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #D1D9E0; padding-bottom: 12px; margin-bottom: 16px; }
+  .meta { color: #59636E; font-size: 12px; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  table th, table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid #E2E8F0; }
-  table th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #64748B; }
+  table th, table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid #E4E8EC; }
+  table th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #59636E; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .field { font-size: 12px; }
-  .field-label { color: #64748B; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
-  .field-value { font-weight: 600; font-size: 14px; color: #0F172A; }
+  .field-label { color: #59636E; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .field-value { font-weight: 600; font-size: 14px; color: #1F2328; }
   .pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-  .pill-warn { background: #FEF3C7; color: #92400E; }
-  .pill-ok { background: #DCFCE7; color: #14532D; }
-  .pill-err { background: #FEE2E2; color: #991B1B; }
-  .footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #E2E8F0; color: #94A3B8; font-size: 10px; }
+  .pill-warn { background: #FFF8C5; color: #7D4E00; }
+  .pill-ok { background: #DAFBE1; color: #166534; }
+  .pill-err { background: #FFEBE9; color: #CF222E; }
   .verdict {
     padding: 14px 18px; border-radius: 8px; margin: 12px 0;
-    background: ${composite?.ispcd ? "#FEE2E2" : "#DCFCE7"};
-    color: ${composite?.ispcd ? "#991B1B" : "#14532D"};
+    border: 1px solid ${composite?.ispcd ? "#FFCECE" : "#A7E8B8"};
+    background: ${composite?.ispcd ? "#FFEBE9" : "#DAFBE1"};
+    color: ${composite?.ispcd ? "#CF222E" : "#166534"};
   }
+  /* Signature + footer */
+  .sign-row { display: flex; justify-content: space-between; margin-top: 40px; gap: 40px; }
+  .sign-box { flex: 1; }
+  .sign-line { border-top: 1px solid #1F2328; margin-top: 38px; padding-top: 4px; font-size: 11px; color: #59636E; }
+  .footer { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E4E8EC; color: #818B98; font-size: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .footer .qr { width: 54px; height: 54px; }
 </style>
 </head><body>
-<div class="header">
+
+<div class="letterhead">
+  <svg class="lh-logo" viewBox="0 0 32 32" fill="none">
+    <path d="M11 6.6c1.4-1.9 4.6-2 6.1-.2 1.6-.7 3.7.1 4.4 1.8 2.1-.3 4 1.4 4 3.5 1.6.5 2.6 2.2 2.2 3.9 1.2 1 1.4 2.9.3 4.1.5 1.7-.7 3.5-2.5 3.7-.5 1.8-2.6 2.7-4.3 1.9-1.2 1.5-3.6 1.5-4.8 0-1.6.8-3.7-.1-4.3-1.8-1.9.2-3.6-1.3-3.5-3.2-1.6-.5-2.5-2.2-2-3.8-1.1-1.1-1.1-2.9 0-4-.5-1.7.6-3.5 2.4-3.8.2-1.9 2.1-3.2 3.9-2.8z" fill="rgba(255,255,255,0.16)"/>
+    <g stroke="#FFF" stroke-width="1.3" stroke-linecap="round" opacity="0.96">
+      <line x1="12" y1="11.5" x2="17" y2="10"/><line x1="17" y1="10" x2="20.5" y2="13.5"/>
+      <line x1="12" y1="11.5" x2="14.5" y2="17"/><line x1="14.5" y1="17" x2="20.5" y2="13.5"/>
+      <line x1="14.5" y1="17" x2="18" y2="21"/>
+    </g>
+    <g fill="#FFF"><circle cx="12" cy="11.5" r="1.7"/><circle cx="17" cy="10" r="1.7"/><circle cx="20.5" cy="13.5" r="1.7"/><circle cx="14.5" cy="17" r="1.7"/><circle cx="18" cy="21" r="1.7"/></g>
+  </svg>
+  <div>
+    <div class="lh-name">NeyroCog</div>
+    <div class="lh-sub">Neyrokognitiv diagnostika va reabilitatsiya tizimi</div>
+  </div>
+  <div class="lh-right">
+    Klinik hisobot<br/>${today}
+  </div>
+</div>
+
+<div class="patient-head">
   <div>
     <h1>${p.fish}</h1>
-    <div class="meta">№ ${p.id} · ${p.yosh} yosh · ${p.jinsi || ""} · Ro'yxatga olingan: ${p.sana || ""}</div>
+    <div class="meta">№ ${p.id} · ${p.yosh} yosh · ${(window.jinsLabel ? window.jinsLabel(p.jinsi) : p.jinsi) || ""} · Ro'yxatga olingan: ${p.sana || ""}</div>
   </div>
-  <div class="meta">Hisobot sanasi: ${today}</div>
+  <div class="meta">Hujjat ID: NC-${String(p.id).padStart(4, "0")}-${today.replace(/\D/g, "").slice(0, 8)}</div>
 </div>
 
 <h2>Demografik ma'lumotlar</h2>
 <div class="grid2">
   <div class="field"><div class="field-label">F.I.Sh.</div><div class="field-value">${p.fish}</div></div>
   <div class="field"><div class="field-label">Yoshi</div><div class="field-value">${p.yosh}</div></div>
-  <div class="field"><div class="field-label">Jinsi</div><div class="field-value">${p.jinsi || "—"}</div></div>
+  <div class="field"><div class="field-label">Jinsi</div><div class="field-value">${(window.jinsLabel ? window.jinsLabel(p.jinsi) : p.jinsi) || "—"}</div></div>
   <div class="field"><div class="field-label">Tug'ilgan sana</div><div class="field-value">${p.tugilgan || "—"}</div></div>
   <div class="field"><div class="field-label">Premorbid fon</div><div class="field-value">${Number(p.premorbid) === 1 ? "Mavjud" : "Yo'q (sog'lom)"}</div></div>
   <div class="field"><div class="field-label">Davomiyligi</div><div class="field-value">${p.davom} daqiqa</div></div>
-  <div class="field"><div class="field-label">Anestetik preparatlar</div><div class="field-value">${p.prep} ta</div></div>
-  <div class="field"><div class="field-label">Amaliyot vaqti</div><div class="field-value">${p.boshlanish ? new Date(p.boshlanish).toLocaleString("uz-UZ", { hour: "2-digit", minute: "2-digit" }) : "—"} → ${p.tugash ? new Date(p.tugash).toLocaleString("uz-UZ", { hour: "2-digit", minute: "2-digit" }) : "—"}</div></div>
+  <div class="field"><div class="field-label">Anestetik dori</div><div class="field-value">${p.prep} ta</div></div>
 </div>
 
 ${composite ? `
@@ -291,7 +343,7 @@ ${composite ? `
 ` : "<p><em>Diagnostik testlar hali bajarilmagan.</em></p>"}
 
 ${risk ? `
-<h2>PNB rivojlanish prognozi</h2>
+<h2>PNB rivojlanish ehtimoli</h2>
 <div class="verdict" style="background: ${risk.composite.category.color}22; color: ${risk.composite.category.color};">
   <strong>${risk.composite.category.label}</strong> · PNB ehtimoli: <strong>${Math.round(risk.composite.risk.prob * 100)}%</strong> · Kutilgan CogScore (PostOp): <strong>${Math.round(risk.composite.severity.score)} / 100</strong>
 </div>
@@ -321,7 +373,7 @@ ${training.length ? `
 ` : ""}
 
 <div class="footer">
-  Kognitiv Test Tizimi · Klinik hisobot · ${today}
+  NeyroCog · Klinik hisobot · ${today} · Loyiha rahbari: Zakirova D.A. · dr.durdona.zakirova@gmail.com · +998 99 816 74 77
 </div>
 </body></html>`;
 }

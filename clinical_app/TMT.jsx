@@ -46,6 +46,19 @@ const TMTTest = ({ patient, onAbort, onFinish }) => {
 
   const nodes = React.useMemo(() => generateNodes(TMT_N), [phase === "intro"]);
 
+  const saveNow = () => {
+    const final = startTime ? Date.now() - startTime : elapsed;
+    onFinish({
+      test: "TMT",
+      variant: "A",
+      duration: final,
+      errors,
+      total: TMT_N,
+      completedAt: new Date().toISOString(),
+      raw: { aTime: final / 1000, aErrors: errors, bTime: null, bErrors: 0, completed: completed.length, total: TMT_N },
+    });
+  };
+
   // Timer tick
   React.useEffect(() => {
     if (phase !== "running" || !startTime) return;
@@ -83,6 +96,7 @@ const TMTTest = ({ patient, onAbort, onFinish }) => {
             aErrors: errors,
             // TMT-B not implemented in interactive form yet
             bTime: null, bErrors: 0,
+            completed: TMT_N, total: TMT_N,
           },
         }), 800);
       } else {
@@ -105,48 +119,95 @@ const TMTTest = ({ patient, onAbort, onFinish }) => {
         height: 64, padding: "0 24px",
         background: "var(--surface)",
         borderBottom: "1px solid var(--border)",
-        display: "flex", alignItems: "center", gap: 16,
+        display: "flex", alignItems: "center", gap: 16, position: "relative",
       }}>
-        <div style={{
-          width: 36, height: 36, borderRadius: 10,
-          background: "var(--primary-soft)", color: "var(--primary-press)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}><Icon name="git-branch" size={18} /></div>
-        <div>
+        {/* Left: brand (click to exit) */}
+        <button onClick={onAbort} title="Chiqish" style={{
+          display: "flex", alignItems: "center", gap: 9, flexShrink: 0,
+          background: "transparent", border: 0, padding: 0, cursor: "pointer",
+        }}>
+          <Logo size={28} />
+          <div className="ktt-hide-mobile" style={{
+            fontFamily: "var(--font-sans)", fontWeight: 800, fontSize: 16,
+            color: "var(--ink)", letterSpacing: "-0.02em", whiteSpace: "nowrap",
+          }}>Neyro<span style={{ color: "var(--primary)" }}>Cog</span></div>
+        </button>
+
+        {/* Center: breadcrumb trail */}
+        <div className="ktt-train-crumbs" style={{
+          position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)",
+          display: "flex", alignItems: "center", gap: 7, maxWidth: "46vw",
+          fontFamily: "var(--font-sans)", fontSize: 13.5, color: "var(--ink-3)",
+        }}>
           <div style={{
-            fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15,
-            color: "var(--ink)", letterSpacing: "-0.005em",
-          }}>Trail Making Test (TMT-A)</div>
-          <div style={{
-            fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--ink-3)",
-          }}>{patient.fish} · № {patient.id} · {patient.yosh} yosh</div>
+            width: 26, height: 26, borderRadius: 8, flexShrink: 0,
+            background: "var(--primary-soft)", color: "var(--primary-press)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}><Icon name="git-branch" size={15} /></div>
+          {[
+            { label: "Asosiy", onClick: onAbort },
+            { label: patient.fish, onClick: onAbort },
+            { label: "Diagnostika", onClick: onAbort },
+            { label: "Trail Making Test (TMT-A)" },
+          ].map((b, i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <span style={{ color: "var(--ink-4)", flexShrink: 0 }}>/</span>}
+              {b.onClick
+                ? <button onClick={b.onClick} className="ktt-hide-mobile" style={{
+                    background: "transparent", border: 0, padding: 0, cursor: "pointer",
+                    font: "inherit", color: "var(--ink-3)", whiteSpace: "nowrap", flexShrink: 0,
+                  }}>{b.label}</button>
+                : <span style={{
+                    color: "var(--ink)", fontWeight: 700, whiteSpace: "nowrap",
+                    overflow: "hidden", textOverflow: "ellipsis",
+                  }}>{b.label}</span>}
+            </React.Fragment>
+          ))}
         </div>
 
-        <div style={{ flex: 1 }} />
+        {/* Right: metrics + exit */}
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          {phase !== "intro" && (
+            <div className="ktt-hide-mobile" style={{ display: "flex", gap: 8, marginRight: 20, paddingRight: 20, borderRight: "1px solid var(--border)" }}>
+              <Metric label="Vaqt" value={formatTime(elapsed)} icon="clock" mono />
+              <Metric label="Xato" value={errors} icon="x-circle"
+                tone={errors > 0 ? "err" : "neutral"} mono />
+              <Metric label="Bog'langan" value={`${completed.length} / ${TMT_N}`}
+                icon="check" mono />
+            </div>
+          )}
 
-        {phase !== "intro" && (
-          <>
-            <Metric label="Vaqt" value={formatTime(elapsed)} icon="clock" mono />
-            <Metric label="Xato" value={errors} icon="x-circle"
-              tone={errors > 0 ? "err" : "neutral"} mono />
-            <Metric label="Bog'langan" value={`${completed.length} / ${TMT_N}`}
-              icon="check" mono />
-          </>
-        )}
-
-        <button className="btn btn-secondary btn-sm" onClick={onAbort}>
-          <Icon name="x" size={14} /> Chiqish
-        </button>
+          {phase === "running"
+            ? <ExitSaveControls onSave={saveNow} onAbort={onAbort} />
+            : <button className="btn btn-secondary btn-sm" onClick={onAbort}>
+                <Icon name="x" size={14} /> Chiqish
+              </button>}
+        </div>
       </header>
 
       {/* Body */}
-      <div style={{
-        flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 24,
-      }}>
-        {phase === "intro"
-          ? <IntroPanel onStart={start} />
-          : <TMTBoard
+      {phase === "intro" ? (
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+          <IntroPanel onStart={start} />
+        </div>
+      ) : (
+        <div className="ktt-run-layout" style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+          {window.GuidePanel && window.GuidePanel({
+            test: { name: "Trail Making Test", icon: "git-branch", color: "var(--primary)", soft: "var(--primary-soft)" },
+            intro: { props: {
+              title: "Trail Making Test, qism A",
+              description: "Ekranda 1 dan 25 gacha sonlar tartibsiz joylashgan. Ularni tartib bo'yicha bosib chiqing.",
+              steps: [
+                "Sichqoncha yoki barmoq bilan doiralarni bosing.",
+                "Tartib bo'yicha: avval 1, keyin 2, keyin 3 va hokazo.",
+                "Noto'g'ri doira bosilsa — xatolar soni ortadi, davom eting.",
+                "25-doiraga yetib borganingizda test yakunlanadi.",
+              ],
+              note: "Joriy bosish kerak bo'lgan son sariq rangda belgilanadi.",
+            } },
+          })}
+          <div className="ktt-run-body" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, minWidth: 0 }}>
+            <TMTBoard
               nodes={nodes}
               current={current}
               completed={completed}
@@ -154,8 +215,9 @@ const TMTTest = ({ patient, onAbort, onFinish }) => {
               onClick={onNodeClick}
               phase={phase}
             />
-        }
-      </div>
+          </div>
+        </div>
+      )}
 
       {/* Bottom hint bar */}
       {phase === "running" && (
@@ -179,6 +241,7 @@ const TMTTest = ({ patient, onAbort, onFinish }) => {
           </span>
         </div>
       )}
+      <Footer />
     </div>
   );
 };

@@ -14,17 +14,17 @@ const TAQSIMOT_BY_NAME = Object.fromEntries(TAQSIMOTLAR.map(t => [t.name, t]));
 window.TAQSIMOTLAR = TAQSIMOTLAR;
 window.TAQSIMOT_BY_NAME = TAQSIMOT_BY_NAME;
 
-const NewPatientModal = ({ open, onClose, onSave }) => {
-  const [form, setForm] = React.useState({
-    fish: "", jinsi: "Erkak", tugilgan: "", premorbid: "0",
-    boshlanish: "", tugash: "", prep: "",
-  });
+const NewPatientModal = ({ open, onClose, onSave, initial, title, saveLabel }) => {
+  const blank = { fish: "", jinsi: "Erkak", tugilgan: "", premorbid: "0", boshlanish: "", tugash: "", prep: "" };
+  const fromInitial = (p) => p ? {
+    fish: p.fish || "", jinsi: p.jinsi || "Erkak", tugilgan: p.tugilgan || "",
+    premorbid: String(Number(p.premorbid) > 0 ? 1 : 0),
+    boshlanish: p.boshlanish || "", tugash: p.tugash || "", prep: p.prep != null ? String(p.prep) : "",
+  } : { ...blank };
+  const [form, setForm] = React.useState(fromInitial(initial));
   React.useEffect(() => {
-    if (open) setForm({
-      fish: "", jinsi: "Erkak", tugilgan: "", premorbid: "0",
-      boshlanish: "", tugash: "", prep: "",
-    });
-  }, [open]);
+    if (open) setForm(fromInitial(initial));
+  }, [open, initial]);
 
   // Auto-derived values — hooks MUST come before any early return
   const yoshi = React.useMemo(() => {
@@ -46,6 +46,14 @@ const NewPatientModal = ({ open, onClose, onSave }) => {
     const mins = Math.round((b - a) / 60000);
     return mins;
   }, [form.boshlanish, form.tugash]);
+
+  // Escape closes the modal (works for both add & edit usages).
+  React.useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === "Escape") { e.stopPropagation(); onClose && onClose(); } };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
   if (!open) return null;
 
@@ -87,7 +95,7 @@ const NewPatientModal = ({ open, onClose, onSave }) => {
             <h3 style={{
               fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 22,
               letterSpacing: "-0.015em", color: "var(--ink)", margin: 0,
-            }}>Yangi bemor</h3>
+            }}>{title || "Yangi bemor"}</h3>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--ink-3)", margin: "4px 0 0" }}>
               Bemor ma'lumotlarini kiriting. Hammasini keyin tahrirlash mumkin.
             </p>
@@ -137,7 +145,7 @@ const NewPatientModal = ({ open, onClose, onSave }) => {
                           checked={active}
                           onChange={() => set("jinsi", j)}
                           style={{ position: "absolute", opacity: 0, pointerEvents: "none" }} />
-                        {j}
+                        {jinsLabel(j)}
                       </label>
                     );
                   })}
@@ -168,7 +176,7 @@ const NewPatientModal = ({ open, onClose, onSave }) => {
             </div>
           </div>
 
-          {/* Premorbid + Preparatlar — bir qatorda */}
+          {/* Premorbid + Dori — bir qatorda */}
           <div style={{ gridColumn: "1 / -1" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, alignItems: "start" }}>
               <div>
@@ -213,7 +221,7 @@ const NewPatientModal = ({ open, onClose, onSave }) => {
                 </label>
               </div>
               <div>
-                <label className="label">Preparatlar soni</label>
+                <label className="label">Dori soni</label>
                 <input className="input" type="number" min="0" required
                   value={form.prep} onChange={e => set("prep", e.target.value)} placeholder="5"
                   style={{ height: 62, fontSize: 18, fontWeight: 600, textAlign: "center" }} />
@@ -278,7 +286,7 @@ const NewPatientModal = ({ open, onClose, onSave }) => {
         }}>
           <button type="button" className="btn btn-secondary" onClick={onClose}>Bekor qilish</button>
           <button type="submit" className="btn btn-primary">
-            <Icon name="check" size={16} /> Saqlash
+            <Icon name="check" size={16} /> {saveLabel || "Saqlash"}
           </button>
         </div>
       </form>
@@ -286,41 +294,108 @@ const NewPatientModal = ({ open, onClose, onSave }) => {
   );
 };
 
-const PatientsList = ({ user, patients, onLogout, onOpen, onAdd, onOpenAnalytics }) => {
+const PatientsList = ({ user, patients, initialFilter, onLogout, onOpen, onAdd, onOpenAnalytics }) => {
   const [showNew, setShowNew] = React.useState(false);
   const [query, setQuery] = React.useState("");
+  const [filterMode, setFilterMode] = React.useState(initialFilter || null);
+  React.useEffect(() => { setFilterMode(initialFilter || null); }, [initialFilter]);
+  const PAGE = 25;
+  const [visible, setVisible] = React.useState(PAGE);
+  const scrollRef = React.useRef(null);
+  const sentinelRef = React.useRef(null);
+  // Reset paging whenever the filter/search changes
+  React.useEffect(() => { setVisible(PAGE); }, [query, filterMode]);
+
+  const FILTER_LABELS = {
+    tested: "Testlar bajarilgan", rehab: "Reabilitatsiyada",
+    pocd: "PNB aniqlangan", highrisk: "Yuqori xavf", premorbid: "Premorbid +",
+  };
+  const matchFilter = (p) => {
+    if (!filterMode) return true;
+    if (filterMode === "tested") return Object.keys(p.results || {}).length > 0;
+    if (filterMode === "rehab") return (p.training || []).length > 0;
+    if (filterMode === "premorbid") return Number(p.premorbid) === 1;
+    if (filterMode === "highrisk") {
+      try { return window.PNBPredictor && p.davom > 0 && window.PNBPredictor.forecast(p).composite.risk.prob >= 0.5; } catch (e) { return false; }
+    }
+    if (filterMode === "pocd") {
+      try {
+        const sum = {}; for (const [k, v] of Object.entries(p.results || {})) { const r = v.PreOp || v.PostOp || v.PostTx || v; if (r && r.raw) sum[k] = window.KNBT.summarizeTest(k, r.raw, "PreOp", p); }
+        return window.KNBT.summarizeComposite(sum, "PreOp")?.ispcd;
+      } catch (e) { return false; }
+    }
+    return true;
+  };
 
   const filtered = patients.filter(p => {
     const q = query.trim().toLowerCase();
-    return !q || p.fish.toLowerCase().includes(q) || String(p.id).includes(q);
+    const matchQ = !q || p.fish.toLowerCase().includes(q) || String(p.id).includes(q);
+    return matchQ && matchFilter(p);
   });
+
+  const shown = filtered.slice(0, visible);
+  const hasMore = visible < filtered.length;
+
+  // Infinite scroll: load next page when sentinel enters the scroll viewport
+  React.useEffect(() => {
+    if (!hasMore || !sentinelRef.current) return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setVisible(v => Math.min(v + PAGE, filtered.length));
+      }
+    }, { root: scrollRef.current, rootMargin: "120px" });
+    io.observe(sentinelRef.current);
+    return () => io.disconnect();
+  }, [hasMore, filtered.length, visible]);
 
   return (
     <>
-      <AppHeader user={user} onLogout={onLogout} breadcrumbs={[{ label: "Bemorlar" }]} />
-      <main style={{ padding: "24px 32px 48px", maxWidth: "var(--content-max)", margin: "0 auto" }}>
+      <AppHeader user={user} onLogout={onLogout} breadcrumbs={[{ label: "Asosiy" }]} title={filterMode ? "Bemorlar — filtr" : "Bemorlar ro'yxati"}
+        onBack={filterMode ? () => setFilterMode(null) : undefined} />
+      <main className="ktt-anim-fade" style={{ padding: "24px 32px 48px", maxWidth: "var(--content-max)", margin: "0 auto" }}>
+        {filterMode && (
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 14,
+            padding: "6px 8px 6px 14px", borderRadius: 999,
+            background: "var(--primary-soft)", color: "var(--primary-press)",
+            fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 13,
+          }}>
+            <Icon name="filter" size={14} /> {FILTER_LABELS[filterMode] || "Filtr"}
+            <button onClick={() => setFilterMode(null)} className="ktt-tap" style={{
+              border: 0, background: "rgba(15,118,110,0.15)", color: "inherit",
+              borderRadius: 999, width: 22, height: 22, cursor: "pointer",
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+            }}><Icon name="x" size={13} /></button>
+          </div>
+        )}
 
         {/* Page title */}
         <div style={{
           display: "flex", alignItems: "flex-end", justifyContent: "space-between",
           marginBottom: 20, gap: 16, flexWrap: "wrap",
         }}>
-          <div>
-            <div className="eyebrow" style={{ marginBottom: 6 }}>Klinik kartochka</div>
-            <h1 style={{
-              fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 32,
-              letterSpacing: "-0.02em", color: "var(--ink)", margin: 0,
-            }}>Bemorlar</h1>
-            <p className="num" style={{
-              fontFamily: "var(--font-sans)", fontSize: 14, color: "var(--ink-3)",
-              margin: "6px 0 0",
-            }}>Hammasi <b style={{ color: "var(--ink)" }}>{patients.length}</b> ta · Filtr bo'yicha <b style={{ color: "var(--ink)" }}>{filtered.length}</b> ta</p>
+          <div style={{ position: "relative", width: "min(320px, 100%)", flex: "0 1 320px" }}>
+            <Icon name="search" size={16} style={{
+              position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)",
+              color: "var(--ink-4)",
+            }} />
+            <input className="input" style={{ paddingLeft: 36 }}
+              placeholder="Bemor qidirish…"
+              value={query} onChange={e => setQuery(e.target.value)} />
           </div>
-          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: 8, flexShrink: 0, alignItems: "center" }}>
             {onOpenAnalytics && (
-              <button className="btn btn-secondary" onClick={onOpenAnalytics}>
-                <Icon name="bar-chart-3" size={16} /> <span className="ktt-hide-mobile">Tahlil markazi</span>
-              </button>
+              <>
+                <button className="btn btn-secondary" onClick={() => onOpenAnalytics("roc")} title="ROC tahlili">
+                  <Icon name="activity" size={16} /> <span className="ktt-hide-mobile">ROC</span>
+                </button>
+                <button className="btn btn-secondary" onClick={() => onOpenAnalytics("treatment")} title="Davolash effekti">
+                  <Icon name="pill" size={16} /> <span className="ktt-hide-mobile">Davolash</span>
+                </button>
+                <button className="btn btn-secondary" onClick={() => onOpenAnalytics("reports")} title="Hisobotlar">
+                  <Icon name="file-text" size={16} /> <span className="ktt-hide-mobile">Hisobotlar</span>
+                </button>
+              </>
             )}
             <button className="btn btn-primary" onClick={() => setShowNew(true)}>
               <Icon name="plus" size={16} /> Yangi bemor
@@ -329,64 +404,94 @@ const PatientsList = ({ user, patients, onLogout, onOpen, onAdd, onOpenAnalytics
         </div>
 
         {/* Stat strip */}
-        <div data-grid="stats" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
-          <StatTile label="Jami bemorlar" value={patients.length} icon="users" />
-          <StatTile label="Testlar o'tgan"
-            value={patients.filter(p => p.results && Object.keys(p.results).length > 0).length} icon="check-circle" tone="ok" />
-          <StatTile label="Reabilitatsiya"
-            value={patients.filter(p => (p.training || []).length > 0).length} icon="brain" tone="primary" />
-          <StatTile label="Yangi bu hafta"
-            value={patients.filter(p => {
-              const days = (Date.now() - new Date(p.sana).getTime()) / 86400000;
-              return days <= 7;
-            }).length} icon="user-plus" />
-        </div>
-
-        {/* Filters */}
-        <div className="card" style={{
-          padding: "12px 14px", marginBottom: 14,
-          display: "flex", alignItems: "center", gap: 12,
-        }}>
-          <div style={{ position: "relative", flex: 1, maxWidth: 360 }}>
-            <Icon name="search" size={16} style={{
-              position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)",
-              color: "var(--ink-4)",
-            }} />
-            <input className="input" style={{ paddingLeft: 36 }}
-              placeholder="Bemor F.I.Sh. yoki № bo'yicha qidirish…"
-              value={query} onChange={e => setQuery(e.target.value)} />
-          </div>
+        <div data-grid="stats" className="ktt-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 14, marginBottom: 20 }}>
+          {(() => {
+            const total = patients.length;
+            const withTests = patients.filter(p => p.results && Object.keys(p.results).length > 0).length;
+            const withTraining = patients.filter(p => (p.training || []).length > 0).length;
+            const premorbidPos = patients.filter(p => Number(p.premorbid) === 1).length;
+            let highRisk = 0, ispcd = 0;
+            patients.forEach(p => {
+              if (window.PNBPredictor && p.davom > 0) {
+                try { if (window.PNBPredictor.forecast(p).composite.risk.prob >= 0.5) highRisk++; } catch (e) {}
+              }
+              if (window.KNBT && Object.keys(p.results || {}).length) {
+                try {
+                  const sum = {};
+                  for (const [k, v] of Object.entries(p.results)) { const r = v.PreOp || v.PostOp || v.PostTx || v; if (r && r.raw) sum[k] = window.KNBT.summarizeTest(k, r.raw, "PreOp", p); }
+                  if (window.KNBT.summarizeComposite(sum, "PreOp")?.ispcd) ispcd++;
+                } catch (e) {}
+              }
+            });
+            const pc = (a, b) => b > 0 ? Math.round((a / b) * 100) : 0;
+            return (
+              <>
+                <StatTile label="Jami bemorlar" value={total} sub={query.trim() ? `filtr: ${filtered.length}` : null} icon="users" />
+                <StatTile label="Testlar bajarilgan" value={withTests} sub={`${pc(withTests, total)}%`} icon="check-circle" tone="ok" />
+                <StatTile label="Reabilitatsiyada" value={withTraining} sub={`${pc(withTraining, total)}%`} icon="brain" tone="primary" />
+                <StatTile label="PNB aniqlangan" value={ispcd} sub={`${pc(ispcd, withTests)}%`} icon="alert-circle" tone="warn" />
+                <StatTile label="Yuqori xavf" value={highRisk} sub={`${pc(highRisk, total)}%`} icon="trending-up" tone="err" />
+                <StatTile label="Premorbid +" value={premorbidPos} sub={`${pc(premorbidPos, total)}%`} icon="alert-triangle" />
+              </>
+            );
+          })()}
         </div>
 
         {/* Table */}
-        <div className="card" style={{ overflow: "hidden" }} data-scroll-x>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--font-sans)", minWidth: 720 }}>
+        <div ref={scrollRef} className="card" style={{ overflow: "auto", maxHeight: "calc(100vh - 280px)" }} data-scroll-x>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--font-sans)", minWidth: 820 }}>
             <thead>
-              <tr style={{ background: "var(--surface-2)", borderBottom: "1px solid var(--border)" }}>
+              <tr style={{ background: "var(--surface-2)", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, zIndex: 1 }}>
                 <Th>№</Th>
                 <Th>Bemorning F.I.Sh.</Th>
                 <Th align="right">Yoshi</Th>
-                <Th align="right">Premorbid Fon</Th>
-                <Th align="right">Davomiyligi</Th>
-                <Th align="right">Preparatlar</Th>
-                <Th>Diagnoz</Th>
-                <Th>Davolash</Th>
-                <Th>Bashorat</Th>
+                <Th align="right">Prem. Fon</Th>
+                <Th align="right">Davom.</Th>
+                <Th align="right">Dori</Th>
+                <Th>Ehtimol</Th>
+                <Th align="center">PreOp</Th>
+                <Th align="center">PostOp</Th>
+                <Th align="center">PostTx</Th>
+                <Th>Trening</Th>
                 <Th></Th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={10} style={{
-                  padding: "60px 20px", textAlign: "center",
-                  color: "var(--ink-3)", fontSize: 14,
-                }}>
-                  Hech narsa topilmadi. Qidiruv shartini o'zgartiring yoki yangi bemor qo'shing.
+                <tr><td colSpan={10} style={{ padding: 0 }}>
+                  <EmptyState
+                    icon={patients.length === 0 ? "user-plus" : "search-x"}
+                    title={patients.length === 0 ? "Hali bemor yo'q" : "Hech narsa topilmadi"}
+                    hint={patients.length === 0
+                      ? "Birinchi bemorni qo'shing — testlar, ehtimol va reabilitatsiya avtomatik ishlaydi."
+                      : "Qidiruv shartini o'zgartiring yoki yangi bemor qo'shing."}
+                    action={patients.length === 0
+                      ? <button className="btn btn-primary" onClick={() => setShowNew(true)}>
+                          <Icon name="plus" size={16} /> Yangi bemor
+                        </button>
+                      : null}
+                  />
                 </td></tr>
               )}
-              {filtered.map((p, i) => {
-                const tests = Object.keys(p.results || {});
-                const sessions = (p.training || []).length;
+              {shown.map((p, i) => {
+                const TESTS_TOTAL = 7;
+                const REHAB_TOTAL = (window.TRAINING_META ? Object.keys(window.TRAINING_META).length : 50);
+                const testsDone = Object.keys(p.results || {}).length;
+                const tpDone = (tp) => Object.values(p.results || {}).filter(e => e && e[tp]).length;
+                // Composite ISPOCD per timepoint → pill turns red if positive.
+                const tpIspcd = (tp) => {
+                  if (!window.KNBT) return false;
+                  try {
+                    const sum = {};
+                    for (const [k, v] of Object.entries(p.results || {})) {
+                      const r = v && v[tp];
+                      if (r && r.raw) sum[k] = window.KNBT.summarizeTest(k, r.raw, tp, p);
+                    }
+                    if (!Object.keys(sum).length) return false;
+                    return !!window.KNBT.summarizeComposite(sum, tp)?.ispcd;
+                  } catch (e) { return false; }
+                };
+                const rehabDone = new Set((p.training || []).map(s => s.exerciseId)).size;
                 // Risk prediction (uses PNBPredictor if available)
                 let risk = null;
                 if (window.PNBPredictor && p.davom > 0) {
@@ -394,7 +499,7 @@ const PatientsList = ({ user, patients, onLogout, onOpen, onAdd, onOpenAnalytics
                 }
                 return (
                   <tr key={p.id} style={{
-                    borderBottom: i === filtered.length - 1 ? 0 : "1px solid var(--divider)",
+                    borderBottom: i === shown.length - 1 ? 0 : "1px solid var(--divider)",
                     cursor: "pointer",
                     transition: "background var(--dur) var(--ease)",
                   }}
@@ -405,15 +510,12 @@ const PatientsList = ({ user, patients, onLogout, onOpen, onAdd, onOpenAnalytics
                     <Td>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <div style={{
-                          width: 32, height: 32, borderRadius: 999,
+                          width: 32, height: 32, borderRadius: 999, flexShrink: 0,
                           background: "var(--primary-soft)", color: "var(--primary-press)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 12,
                         }}>{p.fish.split(" ").map(s => s[0]).slice(0, 2).join("")}</div>
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: 14, color: "var(--ink)" }}>{p.fish}</div>
-                          <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{p.sana}</div>
-                        </div>
+                        <div style={{ fontWeight: 600, fontSize: 14, color: "var(--ink)", whiteSpace: "nowrap" }}>{p.fish}</div>
                       </div>
                     </Td>
                     <Td align="right" mono>{p.yosh}</Td>
@@ -424,16 +526,6 @@ const PatientsList = ({ user, patients, onLogout, onOpen, onAdd, onOpenAnalytics
                     </Td>
                     <Td align="right" mono>{p.davom} daq</Td>
                     <Td align="right" mono>{p.prep}</Td>
-                    <Td>
-                      {tests.length > 0
-                        ? <span className="pill ok"><span className="pill-dot" /> {tests.length} ta</span>
-                        : <span style={{ color: "var(--ink-4)", fontSize: 13 }}>—</span>}
-                    </Td>
-                    <Td>
-                      {sessions > 0
-                        ? <span className="pill primary"><span className="pill-dot" /> {sessions} seans</span>
-                        : <span style={{ color: "var(--ink-4)", fontSize: 13 }}>—</span>}
-                    </Td>
                     <Td>
                       {risk
                         ? <span style={{
@@ -449,18 +541,45 @@ const PatientsList = ({ user, patients, onLogout, onOpen, onAdd, onOpenAnalytics
                           </span>
                         : <span style={{ color: "var(--ink-4)", fontSize: 13 }}>—</span>}
                     </Td>
+                    <Td align="center"><TpPill done={tpDone("PreOp")} total={5} ispcd={tpIspcd("PreOp")} /></Td>
+                    <Td align="center"><TpPill done={tpDone("PostOp")} total={7} ispcd={tpIspcd("PostOp")} /></Td>
+                    <Td align="center"><TpPill done={tpDone("PostTx")} total={7} ispcd={tpIspcd("PostTx")} /></Td>
+                    <Td>
+                      <span className={`pill ${rehabDone >= REHAB_TOTAL ? "ok" : rehabDone > 0 ? "primary" : ""}`}
+                        style={rehabDone === 0 ? { background: "var(--surface-2)", color: "var(--ink-3)" } : undefined}>
+                        <span className="pill-dot" /> <span className="num">{rehabDone}/{REHAB_TOTAL}</span>
+                      </span>
+                    </Td>
                     <Td>
                       <Icon name="chevron-right" size={16} style={{ color: "var(--ink-4)" }} />
                     </Td>
                   </tr>
                 );
               })}
+              {hasMore && (
+                <tr ref={sentinelRef}>
+                  <td colSpan={12} style={{ padding: "16px", textAlign: "center" }}>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 8,
+                      fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--ink-3)",
+                    }}>
+                      <span className="ktt-spin" style={{
+                        width: 14, height: 14, borderRadius: 999,
+                        border: "2px solid var(--border-strong)", borderTopColor: "var(--primary)",
+                        display: "inline-block",
+                      }} />
+                      Yana yuklanmoqda… ({shown.length}/{filtered.length})
+                    </span>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
       </main>
 
+      <Footer />
       <NewPatientModal open={showNew} onClose={() => setShowNew(false)}
         onSave={(p) => { onAdd(p); setShowNew(false); }} />
     </>
@@ -469,9 +588,10 @@ const PatientsList = ({ user, patients, onLogout, onOpen, onAdd, onOpenAnalytics
 
 const Th = ({ children, align = "left" }) => (
   <th style={{
-    textAlign: align, padding: "12px 16px",
-    fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 12,
-    color: "var(--ink-3)", letterSpacing: "0.04em", textTransform: "uppercase",
+    textAlign: align, padding: "11px 14px",
+    fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 10.5,
+    color: "var(--ink-3)", letterSpacing: "0.03em", textTransform: "uppercase",
+    whiteSpace: "nowrap",
   }}>{children}</th>
 );
 
@@ -484,16 +604,27 @@ const Td = ({ children, align = "left", mono }) => (
   }}>{children}</td>
 );
 
+const TpPill = ({ done, total, ispcd }) => (
+  <span className={`pill ${ispcd ? "" : done >= total ? "ok" : done > 0 ? "primary" : ""}`}
+    title={ispcd ? "Composite ISPOCD musbat (PNB)" : undefined}
+    style={ispcd
+      ? { background: "var(--err-bg)", color: "var(--err)", border: "1px solid color-mix(in srgb, var(--err) 30%, transparent)" }
+      : done === 0 ? { background: "var(--surface-2)", color: "var(--ink-3)" } : undefined}>
+    <span className="pill-dot" style={ispcd ? { background: "var(--err)" } : undefined} /> <span className="num">{done}/{total}</span>
+  </span>
+);
+
 const StatTile = ({ label, sub, value, icon, tone = "neutral" }) => {
   const tones = {
     neutral: { bg: "var(--surface-2)", fg: "var(--ink-2)" },
-    primary: { bg: "var(--primary-soft)", fg: "var(--primary-press)" },
-    warn:    { bg: "var(--warn-bg)", fg: "#92400E" },
-    ok:      { bg: "var(--ok-bg)", fg: "#14532D" },
+    primary: { bg: "var(--primary-soft)", fg: "var(--primary)" },
+    warn:    { bg: "var(--warn-bg)", fg: "var(--warn)" },
+    ok:      { bg: "var(--ok-bg)", fg: "var(--ok)" },
+    err:     { bg: "var(--err-bg)", fg: "var(--err)" },
   };
-  const t = tones[tone];
+  const t = tones[tone] || tones.neutral;
   return (
-    <div className="card" style={{
+    <div className="card ktt-lift" style={{
       padding: 14, display: "flex", alignItems: "center", gap: 11,
     }}>
       <div style={{
@@ -503,21 +634,23 @@ const StatTile = ({ label, sub, value, icon, tone = "neutral" }) => {
         flexShrink: 0,
       }}><Icon name={icon} size={18} /></div>
       <div style={{ display: "flex", flexDirection: "column", gap: 0, minWidth: 0 }}>
-        <div style={{
-          fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 22,
-          color: "var(--ink)", letterSpacing: "-0.01em", lineHeight: 1.05,
-          fontVariantNumeric: "tabular-nums",
-        }}>{value}</div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+          <div style={{
+            fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 22,
+            color: "var(--ink)", letterSpacing: "-0.01em", lineHeight: 1.05,
+            fontVariantNumeric: "tabular-nums",
+          }}><CountUp value={value} /></div>
+          {sub && (
+            <span className="num" style={{
+              fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--ink-3)",
+              fontWeight: 600,
+            }}>· {sub}</span>
+          )}
+        </div>
         <div style={{
           fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--ink-2)",
           fontWeight: 500, lineHeight: 1.2,
         }}>{label}</div>
-        {sub && (
-          <div style={{
-            fontFamily: "var(--font-sans)", fontSize: 10, color: "var(--ink-3)",
-            lineHeight: 1.2, marginTop: 1,
-          }}>{sub}</div>
-        )}
       </div>
     </div>
   );
@@ -545,3 +678,4 @@ const GroupPill = ({ name, small = false }) => {
 window.GroupPill = GroupPill;
 
 window.PatientsList = PatientsList;
+window.NewPatientModal = NewPatientModal;

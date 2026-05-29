@@ -6,7 +6,7 @@
 //   • Intro panel + Done panel
 //   • onFinish({ exerciseId, score, accuracy, duration, level }) callback
 
-const TrainingShell = ({ patient, exercise, phase, onAbort, intro, body, metrics, doneSummary, hint }) => (
+const TrainingShell = ({ patient, exercise, phase, onAbort, onSave, intro, body, metrics, doneSummary, hint }) => (
   <div style={{
     minHeight: "100vh", display: "flex", flexDirection: "column",
     background: "var(--bg)",
@@ -15,39 +15,67 @@ const TrainingShell = ({ patient, exercise, phase, onAbort, intro, body, metrics
       height: 64, padding: "0 24px",
       background: "var(--surface)",
       borderBottom: "1px solid var(--border)",
-      display: "flex", alignItems: "center", gap: 16,
+      display: "flex", alignItems: "center", gap: 14, position: "relative",
     }}>
-      <div style={{
-        width: 36, height: 36, borderRadius: 10,
-        background: exercise.soft, color: exercise.color,
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}><Icon name={exercise.icon} size={18} /></div>
-      <div>
-        <div style={{
-          fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15,
-          color: "var(--ink)", letterSpacing: "-0.005em",
-        }}>{exercise.name}</div>
-        <div style={{
-          fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--ink-3)",
-        }}>Kognitiv trening · {patient.fish} · № {patient.id}</div>
-      </div>
-      <div style={{ flex: 1 }} />
-      {metrics && (
-        <div style={{ display: "flex", gap: 8 }}>
-          {metrics.map((m, i) => <TestMetric key={i} {...m} />)}
-        </div>
-      )}
-      <button className="btn btn-secondary btn-sm" onClick={onAbort}>
-        <Icon name="x" size={14} /> Chiqish
+      {/* Left: brand + breadcrumb (same as main pages) */}
+      <button onClick={onAbort} title="Chiqish" style={{
+        display: "flex", alignItems: "center", gap: 9, flexShrink: 0,
+        background: "transparent", border: 0, padding: 0, cursor: "pointer",
+      }}>
+        <Logo size={28} />
+        <div className="ktt-hide-mobile" style={{
+          fontFamily: "var(--font-sans)", fontWeight: 800, fontSize: 16,
+          color: "var(--ink)", letterSpacing: "-0.02em", whiteSpace: "nowrap",
+        }}>Neyro<span style={{ color: "var(--primary)" }}>Cog</span></div>
       </button>
+      <div className="ktt-hide-mobile" style={{
+        display: "flex", alignItems: "center", gap: 7, minWidth: 0,
+        fontFamily: "var(--font-sans)", fontSize: 13.5, color: "var(--ink-3)",
+        paddingLeft: 8, borderLeft: "1px solid var(--divider)",
+      }}>
+        {[
+          { label: "Asosiy", onClick: onAbort },
+          { label: patient.fish, onClick: onAbort },
+          { label: "Reabilitatsiya", onClick: onAbort },
+          { label: exercise.name },
+        ].map((b, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <span style={{ color: "var(--ink-4)", flexShrink: 0 }}>/</span>}
+            {b.onClick
+              ? <button onClick={b.onClick} style={{
+                  background: "transparent", border: 0, padding: 0, cursor: "pointer",
+                  font: "inherit", color: "var(--ink-3)", whiteSpace: "nowrap", flexShrink: 0,
+                }}>{b.label}</button>
+              : <span style={{ color: "var(--ink)", fontWeight: 600, whiteSpace: "nowrap" }}>{b.label}</span>}
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* Right: metrics + exit */}
+      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+        {metrics && (
+          <div className="ktt-hide-mobile" style={{ display: "flex", gap: 8, marginRight: 20, paddingRight: 20, borderRight: "1px solid var(--border)" }}>
+            {metrics.map((m, i) => <TestMetric key={i} {...m} />)}
+          </div>
+        )}
+        {onSave && phase === "running"
+          ? <ExitSaveControls onSave={onSave} onAbort={onAbort} />
+          : <button className="btn btn-secondary btn-sm" onClick={onAbort}>
+              <Icon name="x" size={14} /> Chiqish
+            </button>}
+      </div>
     </header>
 
-    <div style={{
-      flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-      padding: 24, overflow: "auto",
-    }}>
-      {phase === "intro" ? intro : (phase === "done" ? doneSummary : body)}
-    </div>
+    {phase === "intro" ? (
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, overflow: "auto" }}>{intro}</div>
+    ) : phase === "done" ? (
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, overflow: "auto" }}>{doneSummary}</div>
+    ) : (
+      <div className="ktt-run-layout" style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+        <GuidePanel intro={intro} test={exercise} />
+        <div className="ktt-run-body" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, minWidth: 0 }}>{body}</div>
+      </div>
+    )}
 
     {hint && phase === "running" && (
       <div style={{
@@ -58,6 +86,7 @@ const TrainingShell = ({ patient, exercise, phase, onAbort, intro, body, metrics
         fontFamily: "var(--font-sans)", fontSize: 14, color: "var(--ink-2)",
       }}>{hint}</div>
     )}
+    <Footer />
   </div>
 );
 
@@ -121,24 +150,38 @@ const TrainingIntro = ({ exercise, description, instructions, duration, onStart 
   </div>
 );
 
-const TrainingDone = ({ exercise, score, accuracy, duration, level, onAgain, onBack }) => (
+const TrainingDone = ({ exercise, score, accuracy, duration, level, onAgain, onBack }) => {
+  const A = window.KTT_ADAPT;
+  const nStars = A ? A.stars(accuracy) : (accuracy >= 0.9 ? 3 : accuracy >= 0.7 ? 2 : 1);
+  const msg = A ? A.message(accuracy) : "Yaxshi ish!";
+  const levelName = (A && exercise && exercise._level) ? A.LEVEL_NAMES[exercise._level] : null;
+  return (
   <div className="card" style={{
     maxWidth: 520, padding: 36,
     display: "flex", flexDirection: "column", gap: 18,
     alignItems: "center", textAlign: "center",
     boxShadow: "var(--shadow-md)",
   }}>
-    <div style={{
-      width: 88, height: 88, borderRadius: 999,
-      background: "var(--ok-bg)", color: "#14532D",
-      display: "flex", alignItems: "center", justifyContent: "center",
-    }}><Icon name="check-circle" size={48} /></div>
+    {/* Stars */}
+    <div style={{ display: "flex", gap: 8 }}>
+      {[1, 2, 3].map(s => (
+        <div key={s} style={{
+          animation: s <= nStars ? `kttPop 380ms var(--ease-spring) ${s * 120}ms both` : "none",
+        }}>
+          <Icon name="star" size={s === 2 ? 56 : 46}
+            style={{
+              color: s <= nStars ? "#F59E0B" : "var(--surface-3)",
+              fill: s <= nStars ? "#FBBF24" : "transparent",
+            }} />
+        </div>
+      ))}
+    </div>
     <div>
       <div className="eyebrow">Seans yakunlandi</div>
       <div style={{
-        fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 24,
-        letterSpacing: "-0.015em", color: "var(--ink)", margin: "6px 0 0",
-      }}>Yaxshi ish!</div>
+        fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 20,
+        letterSpacing: "-0.015em", color: "var(--ink)", margin: "6px 0 0", maxWidth: 380,
+      }}>{msg}</div>
     </div>
     <div style={{
       display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10,
@@ -148,10 +191,16 @@ const TrainingDone = ({ exercise, score, accuracy, duration, level, onAgain, onB
       <Stat label="Aniqlik" value={accuracy != null ? `${Math.round(accuracy * 100)}%` : "—"} />
       <Stat label="Vaqt" value={`${Math.round(duration / 1000)} s`} />
     </div>
-    {level != null && (
+    {levelName && (
       <div style={{
-        fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--ink-3)",
-      }}>Erishilgan daraja: <b style={{ color: "var(--ink)" }}>{level}</b></div>
+        display: "inline-flex", alignItems: "center", gap: 8,
+        padding: "8px 14px", borderRadius: 999,
+        background: exercise.soft, color: exercise.color,
+        fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 13,
+      }}>
+        <Icon name="gauge" size={14} /> Qiyinlik darajasi: <b>{levelName}</b>
+        {accuracy >= 0.85 && <span style={{ color: "var(--ok)" }}>· keyingi safar qiyinlashadi ↑</span>}
+      </div>
     )}
     <div style={{ display: "flex", gap: 10, width: "100%" }}>
       <button className="btn btn-secondary" style={{ flex: 1, justifyContent: "center" }} onClick={onAgain}>
@@ -162,7 +211,8 @@ const TrainingDone = ({ exercise, score, accuracy, duration, level, onAgain, onB
       </button>
     </div>
   </div>
-);
+  );
+};
 
 const Stat = ({ label, value }) => (
   <div style={{

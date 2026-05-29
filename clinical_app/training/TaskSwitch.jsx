@@ -105,6 +105,7 @@ const TaskSwitchTraining = ({ patient, onAbort, onFinish }) => {
   return (
     <TrainingShell
       patient={patient} exercise={ex} phase={phase} onAbort={onAbort}
+      onSave={() => onFinish({ exerciseId: "taskSwitch", score, accuracy: correct / (correct + errors || 1), duration: Date.now() - sessionStart, level: 1 })}
       metrics={phase === "running" ? [
         { label: "Trial", value: `${idx + 1} / ${TS_TRIALS}`, icon: "list", mono: true },
         { label: "To'g'ri", value: correct, icon: "check", tone: "ok", mono: true },

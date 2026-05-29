@@ -105,11 +105,31 @@ const StroopTest = ({ patient, onAbort, onFinish }) => {
     setTimeout(advance, 280);
   };
 
+  // "Keyingisi" — javobni o'tkazib yuborish. Protokolda "skip" toifasi yo'qligi
+  // sababli o'tkazib yuborilgan trial XATO javob deb hisoblanadi.
+  const skipTrial = () => {
+    if (phase !== "running" || feedback) return;
+    setErrors(e => e + 1);
+    setFeedback("err");
+    setTimeout(advance, 280);
+  };
+
   const trial = trials[idx];
+
+  const saveNow = () => onFinish({
+    test: "Stroop",
+    raw: {
+      correct, errors, skipped: skipped || 0,
+      totalTrials: STROOP_TRIALS,
+      totalTimeSec: (Date.now() - startTime) / 1000,
+    },
+    duration: Date.now() - startTime,
+    completedAt: new Date().toISOString(),
+  });
 
   return (
     <TestShell
-      patient={patient} test={test} phase={phase} onAbort={onAbort}
+      patient={patient} test={test} phase={phase} onAbort={onAbort} onSave={saveNow}
       metrics={phase !== "intro" ? [
         { label: "Vaqt", value: formatMs(elapsed), icon: "clock", mono: true },
         { label: "To'g'ri", value: correct, icon: "check", tone: "ok", mono: true },
@@ -175,6 +195,11 @@ const StroopTest = ({ patient, onAbort, onFinish }) => {
               </button>
             ))}
           </div>
+
+          <button onClick={skipTrial} disabled={!!feedback} className="btn btn-secondary btn-sm"
+            style={{ marginTop: 6 }} title="Bu savolni o'tkazib yuborish (xato deb hisoblanadi)">
+            Keyingisi <Icon name="chevron-right" size={15} />
+          </button>
         </div>
       }
       doneMessage={

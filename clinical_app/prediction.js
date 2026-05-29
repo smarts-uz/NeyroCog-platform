@@ -103,7 +103,7 @@
         beta:  c.dur,
         or:    OR[instrument]?.dur,
         unit:  "daq", value: p.dur, ref: ref.dur },
-      { key: "drugs", label: "Preparatlar soni",
+      { key: "drugs", label: "Dori soni",
         delta: (p.drugs || 0) - ref.drugs,
         beta:  c.drugs,
         or:    OR[instrument]?.drugs,
@@ -164,7 +164,7 @@
       recs.push({
         icon: "pill", tone: "warn",
         title: "Polifarmatsiya yuki",
-        text: `${p.drugs} ta preparat — neyrotoksik yuk yuqori. Preparat kombinatsiyasini optimallashtirib, sonni kamaytirish maqsadga muvofiq.`,
+        text: `${p.drugs} ta dori — neyrotoksik yuk yuqori. Dori kombinatsiyasini optimallashtirib, sonni kamaytirish maqsadga muvofiq.`,
       });
     }
     if (p.age <= 9) {

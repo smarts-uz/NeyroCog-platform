@@ -26,12 +26,13 @@ const Results = ({ patient, result, onBackToPatient, onBackToList }) => {
 
   return (
     <>
-      <AppHeader user={null} onLogout={onBackToList}
+      <AppHeader user={null} onLogout={onBackToList} onBack={onBackToPatient}
         breadcrumbs={[
-          { label: "Bemorlar", onClick: onBackToList },
+          { label: "Asosiy", onClick: onBackToList },
           { label: patient.fish, onClick: onBackToPatient },
           { label: `${meta.short} natijasi` },
-        ]} />
+        ]}
+        title={`${meta.name} — natija`} />
       <main style={{ padding: "28px 32px", maxWidth: 1180, margin: "0 auto" }}>
 
         {/* Hero */}
@@ -189,6 +190,7 @@ const Results = ({ patient, result, onBackToPatient, onBackToList }) => {
         </div>
 
       </main>
+      <Footer />
     </>
   );
 };

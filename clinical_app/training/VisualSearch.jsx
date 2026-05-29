@@ -147,6 +147,7 @@ const VisualSearchTraining = ({ patient, onAbort, onFinish }) => {
   return (
     <TrainingShell
       patient={patient} exercise={ex} phase={phase} onAbort={onAbort}
+      onSave={() => onFinish({ exerciseId: "visualSearch", score, accuracy: correct / (correct + errors || 1), duration: Date.now() - sessionStart, level })}
       metrics={phase === "running" ? [
         { label: "Daraja", value: level, icon: "trending-up", tone: "primary", mono: true },
         { label: "Trial", value: `${trialN + 1} / 15`, icon: "list", mono: true },

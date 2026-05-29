@@ -122,6 +122,7 @@ const NBackTraining = ({ patient, onAbort, onFinish }) => {
   return (
     <TrainingShell
       patient={patient} exercise={ex} phase={phase} onAbort={onAbort}
+      onSave={() => onFinish({ exerciseId: "nback", score, accuracy: (hits + correctRejs) / NB_TOTAL, duration: Date.now() - sessionStart, level: n })}
       metrics={phase === "running" ? [
         { label: `${n}-Back`, value: `${idx + 1} / ${NB_TOTAL}`, icon: "list", tone: "primary", mono: true },
         { label: "Hit", value: hits, icon: "check", tone: "ok", mono: true },

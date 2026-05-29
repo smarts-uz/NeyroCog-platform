@@ -137,9 +137,15 @@ const DSTTest = ({ patient, onAbort, onFinish }) => {
 
   const expectedLen = sequence.length;
 
+  const saveNow = () => onFinish({
+    test: "DST",
+    raw: { forward: forwardBest, backward: backwardBest },
+    completedAt: new Date().toISOString(),
+  });
+
   return (
     <TestShell
-      patient={patient} test={test} phase={phase} onAbort={onAbort}
+      patient={patient} test={test} phase={phase} onAbort={onAbort} onSave={saveNow}
       metrics={phase !== "intro" ? [
         { label: "Bosqich",      value: mode === "forward" ? "To'g'ri" : "Teskari", icon: "arrow-right" },
         { label: "Hozirgi span", value: span, icon: "list", mono: true },

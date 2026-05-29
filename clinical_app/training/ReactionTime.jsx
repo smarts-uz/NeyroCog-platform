@@ -140,6 +140,7 @@ const RTimeTraining = ({ patient, onAbort, onFinish }) => {
   return (
     <TrainingShell
       patient={patient} exercise={ex} phase={phase} onAbort={onAbort}
+      onSave={() => onFinish({ exerciseId: "reactionTime", score, accuracy: (hits + correctRejs) / RT_TRIALS, duration: Date.now() - sessionStart, level: 1 })}
       metrics={phase === "running" ? [
         { label: "Trial", value: `${idx + 1} / ${RT_TRIALS}`, icon: "list", mono: true },
         { label: "Hit", value: hits, icon: "check", tone: "ok", mono: true },

@@ -193,7 +193,7 @@ export function NewPatientModal({ open, onOpenChange, initial }: Props) {
           </div>
           <div>
             <Label>{t("age")}</Label>
-            <div className="h-10 grid place-items-center rounded-md bg-primary-soft-2 text-primary font-semibold tabular-nums border border-primary/20">
+            <div className="h-10 grid place-items-center rounded-md bg-primary-soft-2 text-primary font-mono font-semibold tabular-nums border border-primary/20">
               {age != null ? `${age} yosh` : t("ageAuto")}
             </div>
           </div>

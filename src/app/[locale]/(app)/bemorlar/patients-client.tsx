@@ -183,7 +183,7 @@ export function PatientsClient({ initialPatients }: Props) {
                     >
                       <Td className="text-center text-ink-3">{idx + 1}</Td>
                       <Td className="font-medium">{p.fish}</Td>
-                      <Td className="text-center">{p.yosh}</Td>
+                      <Td className="text-center font-mono tabular-nums">{p.yosh}</Td>
                       <Td>
                         {p.premorbid > 0 ? (
                           <Pill tone="warn" dot>
@@ -237,7 +237,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
   return (
     <Card className="p-4">
       <div className="text-[11px] uppercase tracking-wider text-ink-3">{label}</div>
-      <div className="text-2xl font-bold tabular-nums mt-1">{value}</div>
+      <div className="text-2xl font-bold font-mono tabular-nums mt-1">{value}</div>
     </Card>
   );
 }

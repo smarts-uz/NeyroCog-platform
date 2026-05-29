@@ -19,7 +19,20 @@
     "yes": "Yes",
     "no": "No",
     "error": "Error",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "editProfile": "Edit profile"
+  },
+  "Profile": {
+    "title": "Edit profile",
+    "subtitle": "Update your doctor details",
+    "fullName": "Full name",
+    "role": "Title",
+    "clinic": "Clinic / Institution",
+    "email": "Email",
+    "phone": "Phone",
+    "avatarHint": "Avatar is generated from your initials.",
+    "nameRequired": "Name is required",
+    "saving": "Saving…"
   },
   "Login": {
     "title": "Sign in",

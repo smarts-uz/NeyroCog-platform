@@ -101,8 +101,12 @@ export const doctorProfile = pgTable("doctor_profile", {
     .references(() => user.id, { onDelete: "cascade" }),
   fullName: text("full_name").notNull(),
   clinic: text("clinic"),
-  // Roller: "doctor" (oddiy shifokor), "admin" (klinika boshlig'i)
+  // Roller: "doctor" (oddiy shifokor), "admin" (klinika boshlig'i) — kirish darajasi
   role: varchar("role", { length: 16 }).notNull().default("doctor"),
+  // Lavozim / mutaxassislik (Nevropatolog, Pediatr, ...) — profil ko'rsatkichi
+  title: varchar("title", { length: 64 }),
+  // Aloqa telefoni
+  phone: varchar("phone", { length: 32 }),
   // Til afzalligi (uz / ru / en), null bo'lsa browser locale ishlatiladi
   preferredLocale: varchar("preferred_locale", { length: 4 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

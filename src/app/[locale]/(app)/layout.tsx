@@ -1,6 +1,7 @@
 import { redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { getSession } from "@/lib/auth/session";
+import { getDoctorProfile } from "@/lib/doctor/actions";
 import { setRequestLocale } from "next-intl/server";
 import { AppHeader } from "./_components/app-header";
 
@@ -20,9 +21,18 @@ export default async function AppLayout({
     return null;
   }
 
+  const profile = (await getDoctorProfile()) ?? {
+    fullName: session.user.name,
+    email: session.user.email,
+    title: null,
+    clinic: null,
+    phone: null,
+    role: "doctor",
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      <AppHeader user={session.user} />
+      <AppHeader profile={profile} />
       <main className="flex-1">{children}</main>
     </div>
   );

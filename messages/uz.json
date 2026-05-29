@@ -18,7 +18,20 @@
     "yes": "Ha",
     "no": "Yo'q",
     "error": "Xato",
-    "tryAgain": "Qayta urinish"
+    "tryAgain": "Qayta urinish",
+    "editProfile": "Profilni tahrirlash"
+  },
+  "Profile": {
+    "title": "Profilni tahrirlash",
+    "subtitle": "Shifokor ma'lumotlarini yangilang",
+    "fullName": "To'liq ism",
+    "role": "Lavozim",
+    "clinic": "Klinika / Muassasa",
+    "email": "Email",
+    "phone": "Telefon",
+    "avatarHint": "Avatar ism harflaridan avtomatik yaratiladi.",
+    "nameRequired": "Ism kiritilishi shart",
+    "saving": "Saqlanmoqda…"
   },
   "Login": {
     "title": "Tizimga kirish",

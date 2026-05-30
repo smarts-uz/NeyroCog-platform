@@ -201,5 +201,17 @@
       "subtitle": "Nimadir noto'g'ri ketdi. Iltimos, qayta urinib ko'ring.",
       "retry": "Qayta yuklash"
     }
+  },
+  "Forgot": {
+    "title": "Parolni tiklash",
+    "subtitle": "Hisobingiz email manzilini kiriting",
+    "email": "Email",
+    "emailPlaceholder": "doktor@klinika.uz",
+    "submit": "Tiklash havolasini yuborish",
+    "submitting": "Yuborilmoqda…",
+    "back": "Kirishga qaytish",
+    "sentTitle": "Tekshiring",
+    "sentBody": "Agar bu manzil tizimda roʻyxatdan oʻtgan boʻlsa, parolni tiklash boʻyicha koʻrsatmalar yuboriladi. Hozircha oʻzini-oʻzi tiklash yoqilmagan — parolni tiklash uchun loyiha rahbari (dr.durdona.zakirova@gmail.com) bilan bogʻlaning.",
+    "invalidEmail": "Email manzili notoʻgʻri"
   }
 }

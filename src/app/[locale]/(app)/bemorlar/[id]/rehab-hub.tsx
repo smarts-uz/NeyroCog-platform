@@ -148,59 +148,88 @@ export function RehabHub({ patientId, training }: { patientId: string; training:
         </div>
       </Card>
 
-      {/* Domain accordions */}
-      {TRAINING_DOMAINS.map((dom) => {
-        const list = TRAINING_LIST.filter((ex) => ex.domain === dom.name);
-        const domDone = list.filter((ex) => (agg?.byExercise[ex.id]?.sessions ?? 0) > 0).length;
-        const open = openDomain === dom.name;
-        const complete = domDone === list.length && list.length > 0;
-        return (
-          <Card key={dom.name} className="overflow-hidden p-0">
-            <button
-              type="button"
-              onClick={() => setOpenDomain(open ? null : dom.name)}
-              className="w-full flex items-center gap-3.5 px-[18px] py-3.5 text-left cursor-pointer"
+      {/* Domain cards — responsive multi-column grid; ochilgani to'liq enga yoyiladi */}
+      <div
+        className="grid gap-3.5 items-start"
+        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}
+      >
+        {TRAINING_DOMAINS.map((dom) => {
+          const list = TRAINING_LIST.filter((ex) => ex.domain === dom.name);
+          const domDone = list.filter((ex) => (agg?.byExercise[ex.id]?.sessions ?? 0) > 0).length;
+          const open = openDomain === dom.name;
+          const complete = domDone === list.length && list.length > 0;
+          return (
+            <Card
+              key={dom.name}
+              className="overflow-hidden p-0 transition-colors"
+              style={{
+                gridColumn: open ? "1 / -1" : "auto",
+                borderColor: open ? `${dom.color}55` : undefined,
+              }}
             >
-              <div
-                className="h-10 w-10 rounded-[11px] grid place-items-center shrink-0"
-                style={{ background: dom.soft, color: dom.color }}
+              <button
+                type="button"
+                onClick={() => setOpenDomain(open ? null : dom.name)}
+                className="w-full flex items-center gap-3.5 px-4 py-3.5 text-left cursor-pointer"
               >
-                <ClinicalIcon name={dom.icon} size={20} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-bold text-[15px] text-ink">{dom.name}</div>
-                <div className="text-xs text-ink-3">{list.length} ta mashq</div>
-              </div>
-              <span
-                className="font-bold text-[13px] tabular-nums px-2.5 py-0.5 rounded-pill"
-                style={{
-                  background: complete ? "var(--color-ok-bg)" : "var(--color-surface-2)",
-                  color: complete ? "var(--color-ok)" : "var(--color-ink-3)",
-                }}
-              >
-                {domDone}/{list.length}
-              </span>
-              {open ? (
-                <ChevronUp className="h-[18px] w-[18px] text-ink-3 shrink-0" />
-              ) : (
-                <ChevronDown className="h-[18px] w-[18px] text-ink-3 shrink-0" />
-              )}
-            </button>
-            {open ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 px-4 pb-4">
-                {list.map((ex) => (
-                  <ExerciseCard
-                    key={ex.id}
-                    exercise={ex}
-                    stat={agg?.byExercise[ex.id]}
-                    onStart={() => launch(ex)}
+                <div
+                  className="h-[42px] w-[42px] rounded-[11px] grid place-items-center shrink-0"
+                  style={{ background: dom.soft, color: dom.color }}
+                >
+                  <ClinicalIcon name={dom.icon} size={21} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-[14.5px] text-ink leading-tight">{dom.name}</div>
+                  <div className="text-xs text-ink-3">{list.length} ta mashq</div>
+                </div>
+                <span
+                  className="font-bold text-[12.5px] tabular-nums px-2.5 py-0.5 rounded-pill shrink-0"
+                  style={{
+                    background: complete ? "var(--color-ok-bg)" : "var(--color-surface-2)",
+                    color: complete ? "var(--color-ok)" : "var(--color-ink-3)",
+                  }}
+                >
+                  {domDone}/{list.length}
+                </span>
+                {open ? (
+                  <ChevronUp className="h-[18px] w-[18px] text-ink-3 shrink-0" />
+                ) : (
+                  <ChevronDown className="h-[18px] w-[18px] text-ink-3 shrink-0" />
+                )}
+              </button>
+
+              {/* Mini progress bar — yopiq holatdagi ko'rsatkich */}
+              {!open ? (
+                <div className="h-1 bg-surface-2 mx-4 mb-3.5 rounded-pill overflow-hidden">
+                  <div
+                    className="h-full transition-[width] duration-300"
+                    style={{
+                      width: `${list.length ? (domDone / list.length) * 100 : 0}%`,
+                      background: complete ? "var(--color-ok)" : dom.color,
+                    }}
                   />
-                ))}
-              </div>
-            ) : null}
-          </Card>
-        );
-      })}
+                </div>
+              ) : null}
+
+              {open ? (
+                <div
+                  className="grid gap-3 px-4 pb-4"
+                  style={{ gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))" }}
+                >
+                  {list.map((ex) => (
+                    <ExerciseCard
+                      key={ex.id}
+                      exercise={ex}
+                      stat={agg?.byExercise[ex.id]}
+                      onStart={() => launch(ex)}
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </Card>
+          );
+        })}
+      </div>
 
       {/* Recent sessions log */}
       {training.length > 0 ? (

@@ -358,7 +358,27 @@ export function PatientDetail({ bundle }: { bundle: PatientDetailBundle }) {
                 <button
                   type="button"
                   onClick={() => setView("forecast")}
-                  className="text-left bg-surface border border-border rounded-lg p-5 flex flex-col gap-3 shadow-xs cursor-pointer transition-[transform,box-shadow] hover:shadow-md hover:-translate-y-0.5"
+                  className="text-left rounded-lg p-5 flex flex-col gap-3 shadow-xs cursor-pointer transition-[transform,box-shadow] hover:shadow-md hover:-translate-y-0.5"
+                  style={(() => {
+                    // Bashorat ehtimoliga ko'ra tint: <51 default · 51–80 warn · 81+ err
+                    const p = fc ? Math.round(fc.composite.risk.prob * 100) : null;
+                    const tone = p == null ? null : p >= 81 ? "err" : p >= 51 ? "warn" : null;
+                    return {
+                      background:
+                        tone === "err"
+                          ? "var(--color-err-bg)"
+                          : tone === "warn"
+                            ? "var(--color-warn-bg)"
+                            : "var(--color-surface)",
+                      border: `1px solid ${
+                        tone === "err"
+                          ? "var(--color-err)"
+                          : tone === "warn"
+                            ? "var(--color-warn)"
+                            : "var(--color-border)"
+                      }`,
+                    };
+                  })()}
                 >
                   <div className="flex items-center gap-3">
                     <span className="h-12 w-12 rounded-[13px] grid place-items-center bg-accent-soft text-accent shrink-0">

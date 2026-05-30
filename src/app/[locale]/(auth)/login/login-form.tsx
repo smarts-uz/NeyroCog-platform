@@ -105,9 +105,9 @@ export function LoginForm() {
           </Button>
 
           <p className="text-center text-xs text-ink-3">
-            <button type="button" className="hover:text-primary">
+            <Link href="/forgot" className="hover:text-primary">
               {t("forgotPassword")}
-            </button>
+            </Link>
           </p>
 
           <p className="text-center text-sm text-ink-3 pt-2 border-t border-divider">

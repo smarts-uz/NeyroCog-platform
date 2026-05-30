@@ -14,11 +14,22 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#0F766E",
     lang: "uz",
     dir: "ltr",
-    orientation: "portrait-primary",
-    categories: ["medical", "health"],
+    orientation: "any",
+    categories: ["medical", "health", "productivity"],
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
+      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      {
+        src: "/icons/icon-maskable-512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
+    ],
+    shortcuts: [
+      { name: "Bemorlar ro'yxati", short_name: "Bemorlar", url: "/uz/bemorlar" },
+      { name: "Tahlil — ROC", short_name: "Tahlil", url: "/uz/tahlil" },
     ],
   };
 }

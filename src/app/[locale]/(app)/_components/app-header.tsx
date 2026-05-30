@@ -4,9 +4,10 @@ import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { signOut } from "@/lib/auth/client";
 import type { DoctorProfile } from "@/lib/doctor/actions";
-import { Brain, LogOut } from "lucide-react";
+import { Brain, Globe, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { DoctorProfileModal } from "./doctor-profile-modal";
@@ -50,6 +51,16 @@ export function AppHeader({ profile }: { profile: DoctorProfile }) {
         </button>
 
         <div className="flex-1" />
+
+        {/* Tanishtiruv (landing) sahifasi */}
+        <Link
+          href="/sayt"
+          title="Tanishtiruv sahifasi"
+          className="inline-flex items-center gap-1.5 h-9 px-2.5 rounded-md text-sm font-semibold text-ink-2 hover:bg-surface-2 transition-colors"
+        >
+          <Globe className="h-[15px] w-[15px]" />
+          <span className="hidden sm:inline">Sayt</span>
+        </Link>
 
         {/* Doctor chip — opens profile editor */}
         <button

@@ -230,6 +230,25 @@
   }
 }
 
+/* ─── Reduced motion — animatsiyalarni neytrallash ────────────
+ * Foydalanuvchi prefers-reduced-motion tanlasa, kirish animatsiyalari
+ * (fill-mode:both bilan) "from" holatida (opacity 0) qotib qolmasligi
+ * uchun yakuniy ko'rinadigan holatni majburlaymiz. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 /* ─── Print (PDF hisobot) — har doim yorug' ──────────────────── */
 @media print {
   @page {
